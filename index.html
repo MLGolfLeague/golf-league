@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MicroLumen Golf League</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:  #0f2318;
+      --green:       #1a472a;
+      --green-mid:   #2d6a4f;
+      --gold:        #c9a84c;
+      --gold-light:  #e8c97a;
+      --gold-dim:    #9a7a30;
+      --cream:       #f8f5ed;
+      --off-white:   #fffef8;
+      --row-alt:     #f4f1e8;
+      --text:        #1a1a1a;
+      --text-gray:   #666;
+      --blue-birdie: #1a6bb5;
+      --blue-eagle:  #0d4a8a;
+      --orange:      #e07030;
+      --red:         #c0392b;
+    }
+
+    body {
+      font-family: Georgia, serif;
+      background: var(--green-dark);
+      color: var(--cream);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(160deg, #1a3d25 0%, var(--green-dark) 80%);
+      border-bottom: 3px solid var(--gold);
+      padding: 28px 20px 22px;
+      text-align: center;
+      position: relative;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 6px;
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+      filter: sepia(1) saturate(2) hue-rotate(-10deg);
+    }
+
+    .league-title {
+      font-size: 2rem;
+      color: var(--gold);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .league-sub {
+      font-size: 0.8rem;
+      color: var(--gold-dim);
+      letter-spacing: 3px;
+      font-family: sans-serif;
+      text-transform: uppercase;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--green);
+      display: flex;
+      justify-content: center;
+      border-bottom: 2px solid var(--gold-dim);
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: rgba(232, 201, 122, 0.6);
+      font-family: Georgia, serif;
+      font-size: 0.95rem;
+      letter-spacing: 1.5px;
+      padding: 14px 36px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .tab-btn:hover  { color: var(--gold-light); background: rgba(201,168,76,0.07); }
+    .tab-btn.active { color: var(--gold);        border-bottom-color: var(--gold); background: rgba(201,168,76,0.12); }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 860px;
+      margin: 36px auto 60px;
+      padding: 0 16px;
+    }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ── SECTION HEADER ── */
+    .sec-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .sec-title {
+      font-size: 1.25rem;
+      color: var(--gold);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      background: var(--green);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-light);
+      font-size: 0.7rem;
+      padding: 3px 11px;
+      border-radius: 10px;
+      font-family: sans-serif;
+      letter-spacing: 1px;
+    }
+
+    /* ── TABLE ── */
+    .lb-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.6);
+    }
+
+    .lb-table thead th {
+      background: var(--green);
+      color: var(--gold);
+      font-family: sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--gold-dim);
+    }
+
+    .lb-table thead th.c { text-align: center; }
+
+    .lb-table tbody tr {
+      background: var(--off-white);
+      color: var(--text);
+      border-bottom: 1px solid #e0ddd4;
+      transition: background 0.12s;
+    }
+
+    .lb-table tbody tr:hover { background: #f0ece0; }
+
+    /* Position rows */
+    .lb-table tbody tr.r1 {
+      background: linear-gradient(90deg, #fff8dc 0%, #fffbee 100%);
+      border-left: 5px solid var(--gold);
+    }
+
+    .lb-table tbody tr.r2 { background: #fafaf2; border-left: 3px solid #ccc; }
+    .lb-table tbody tr.r3 { background: #fafaf2; border-left: 3px solid #c8a86b; }
+    .lb-table tbody tr.dnf-row { opacity: 0.6; }
+
+    .lb-table td {
+      padding: 11px 14px;
+      font-family: sans-serif;
+      font-size: 0.88rem;
+    }
+
+    td.pos {
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      width: 52px;
+      color: var(--text-gray);
+    }
+
+    tr.r1 td.pos { color: var(--gold); font-size: 1.1rem; }
+
+    td.name { font-weight: 600; font-size: 0.92rem; }
+
+    td.num {
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    td.pts {
+      text-align: center;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    td.total {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--green-mid);
+    }
+
+    tr.r1 td.total { color: var(--gold); }
+
+    td.dnf {
+      text-align: center;
+      color: var(--text-gray);
+      font-style: italic;
+      font-size: 0.82rem;
+    }
+
+    /* Handicap note box */
+    .hcp-note {
+      background: rgba(201,168,76,0.08);
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-family: sans-serif;
+      font-size: 0.8rem;
+      color: rgba(232,201,122,0.75);
+      line-height: 1.6;
+    }
+
+    td.idx {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--green-mid);
+    }
+    tr.r1 td.idx { color: var(--gold); }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: rgba(201,168,76,0.3);
+      font-family: sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .league-title { font-size: 1.1rem; letter-spacing: 1px; }
+      .league-sub   { font-size: 0.65rem; letter-spacing: 1px; }
+      .logo-icon    { font-size: 1.2rem; }
+      header        { padding: 14px 10px; }
+
+      nav { flex-wrap: wrap; }
+      .tab-btn { padding: 9px 12px; font-size: 0.72rem; letter-spacing: 0.5px; flex: 1 1 auto; text-align: center; }
+
+      main { margin: 16px auto; padding: 0 8px; }
+
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .lb-table td, .lb-table th { padding: 8px 8px; font-size: 0.75rem; }
+      .sec-title { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <span class="logo-icon">⛳</span>
+    <div class="league-title">MicroLumen Golf League</div>
+    <span class="logo-icon">⛳</span>
+  </div>
+  <div class="league-sub">Full Swing Simulator &bull; 9 Holes &bull; Stableford Scoring</div>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="show('points',this)">Leaderboard</button>
+  <button class="tab-btn"        onclick="show('strokes',this)">Net Strokes</button>
+  <button class="tab-btn"        onclick="show('gross',this)">Gross Strokes</button>
+  <button class="tab-btn"        onclick="show('handicap',this)">Handicap</button>
+</nav>
+
+<main>
+
+  <!-- STABLEFORD LEADERBOARD -->
+  <div id="tab-points" class="tab-pane active">
+    <div class="sec-head">
+      <div class="sec-title">Points Leaderboard</div>
+      <div class="badge" id="pts-badge"></div>
+    </div>
+    <div class="hcp-note">Tiebreaker: lowest net strokes wins</div>
+    <div class="table-wrap"><table class="lb-table" id="pts-table"></table></div>
+  </div>
+
+  <!-- NET STROKES -->
+  <div id="tab-strokes" class="tab-pane">
+    <div class="sec-head">
+      <div class="sec-title">Net Strokes</div>
+      <div class="badge" id="str-badge"></div>
+    </div>
+    <div class="table-wrap"><table class="lb-table" id="str-table"></table></div>
+  </div>
+
+  <!-- GROSS STROKES -->
+  <div id="tab-gross" class="tab-pane">
+    <div class="sec-head">
+      <div class="sec-title">Gross Strokes</div>
+      <div class="badge" id="gross-badge"></div>
+    </div>
+    <div class="table-wrap"><table class="lb-table" id="gross-table"></table></div>
+  </div>
+
+  <!-- HANDICAP -->
+  <div id="tab-handicap" class="tab-pane">
+    <div class="sec-head">
+      <div class="sec-title">Handicap Index</div>
+      <div class="badge" id="hcp-badge">For Next Round</div>
+    </div>
+
+    <div class="table-wrap"><table class="lb-table" id="hcp-table"></table></div>
+  </div>
+
+</main>
+
+<footer id="footer-text">Updated after Round 2 &bull; PGA National</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  LEAGUE DATA  — update each week
+// ═══════════════════════════════════════════════════════════════════
+
+// Official rounds (R1 & R2 were handicap-establishment only — no points)
+const ROUNDS = [
+  {
+    num: 1,
+    course: "TPC Sawgrass",
+    stableford: {
+      "Samuel Nieves":    22,
+      "Pat Muia":         17,
+      "Brent Osgood":     17,
+      "Michael Ramos":    16,
+      "Scott Goodwin":    15,
+      "Israel Nieves":    15,
+      "Jackson Stupp":    14,
+      "Shane Pritchett":  13,
+      "Timothy Lynch":    10,
+      "Chase Campanella":  7,
+      "Rene Alvarado":     3,
+      "Cynthia Soto":      2
+    },
+    netStrokes: {
+      "Samuel Nieves":    32,
+      "Brent Osgood":     37,
+      "Pat Muia":         39,
+      "Jackson Stupp":    40,
+      "Michael Ramos":    40,
+      "Scott Goodwin":    40,
+      "Timothy Lynch":    44,
+      "Shane Pritchett":  45,
+      "Israel Nieves":    46,
+      "Chase Campanella": 55,
+      "Rene Alvarado":    82,
+      "Lydia Johnson":   "DNF",
+      "Cynthia Soto":    129,
+      "Shawn Gillispie": "DNF"
+    },
+    grossStrokes: {
+      "Brent Osgood":     37,
+      "Jackson Stupp":    40,
+      "Michael Ramos":    43,
+      "Pat Muia":         44,
+      "Samuel Nieves":    44,
+      "Timothy Lynch":    47,
+      "Scott Goodwin":    48,
+      "Shane Pritchett":  54,
+      "Israel Nieves":    54,
+      "Chase Campanella": 72,
+      "Rene Alvarado":   100,
+      "Cynthia Soto":    147,
+      "Lydia Johnson":   151,
+      "Shawn Gillispie": "DNF"
+    }
+  },
+  {
+    num: 2,
+    course: "PGA National",
+    stableford: {
+      "Timothy Lynch":   18,
+      "Michael Ramos":   17,
+      "Brent Osgood":    15,
+      "Scott Goodwin":   14
+    },
+    netStrokes: {
+      "Timothy Lynch":   36,
+      "Michael Ramos":   37,
+      "Brent Osgood":    39,
+      "Scott Goodwin":   45
+    },
+    grossStrokes: {
+      "Brent Osgood":    39,
+      "Michael Ramos":   41,
+      "Timothy Lynch":   41,
+      "Scott Goodwin":   55
+    }
+  }
+  // Add future rounds here — same structure
+];
+
+// Handicap index history — one entry per round, provided by user each week
+const HANDICAP_HISTORY = [
+  {
+    num: 1,
+    indices: {
+      "Brent Osgood":     0,
+      "Jackson Stupp":    0,
+      "Michael Ramos":    6,
+      "Timothy Lynch":    6,
+      "Pat Muia":         11,
+      "Shawn Gillispie":  11,
+      "Scott Goodwin":    16,
+      "Israel Nieves":    17,
+      "Shane Pritchett":  19,
+      "Samuel Nieves":    24,
+      "Chase Campanella": 34,
+      "Rene Alvarado":    36,
+      "Cynthia Soto":     36,
+      "Lydia Johnson":    36
+    }
+  },
+  {
+    num: 2,
+    indices: {
+      "Brent Osgood":     0,
+      "Jackson Stupp":    0,
+      "Michael Ramos":    8,
+      "Timothy Lynch":    10,
+      "Pat Muia":         14,
+      "Shawn Gillispie":  16,
+      "Israel Nieves":    17,
+      "Samuel Nieves":    17,
+      "Scott Goodwin":    21,
+      "Shane Pritchett":  23,
+      "Chase Campanella": 36,
+      "Rene Alvarado":    36,
+      "Cynthia Soto":     36,
+      "Lydia Johnson":    36
+    }
+  },
+  {
+    num: 3,
+    indices: {
+      "Brent Osgood":  0,
+      "Timothy Lynch": 7,
+      "Michael Ramos": 7,
+      "Scott Goodwin": 21
+    }
+  }
+  // Add future rounds here — same structure
+];
+
+// Master player list — everyone always appears in all tables
+const ALL_PLAYERS = [
+  "Samuel Nieves", "Brent Osgood", "Pat Muia", "Jackson Stupp",
+  "Michael Ramos", "Scott Goodwin", "Timothy Lynch", "Shane Pritchett",
+  "Shawn Gillispie", "Israel Nieves", "Chase Campanella", "Rene Alvarado",
+  "Lydia Johnson", "Cynthia Soto"
+];
+
+// ═══════════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════════
+
+function posLabel(i, arr, key, lowerBetter) {
+  const val = arr[i][key];
+  if (lowerBetter && isNaN(val)) return "—";        // DNF
+  let first = i;
+  while (first > 0 && arr[first - 1][key] === val) first--;
+  const next = i < arr.length - 1 && arr[i + 1][key] === val;
+  const tied = first !== i || next;
+  const n = first + 1;
+  return tied ? "T" + n : n;
+}
+
+function rowClass(i, isDnf) {
+  if (isDnf) return "dnf-row";
+  return i === 0 ? "r1" : i === 1 ? "r2" : i === 2 ? "r3" : "";
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BUILD: STABLEFORD POINTS
+// ═══════════════════════════════════════════════════════════════════
+
+function buildPoints() {
+  const roundNums = ROUNDS.map(r => r.num);
+  const map = {};
+
+  // Seed all players so everyone appears even with no scores
+  ALL_PLAYERS.forEach(name => {
+    map[name] = { name, byRound: {}, total: 0, netTotal: 0, netDNF: false, rds: 0 };
+  });
+
+  ROUNDS.forEach(r => {
+    Object.entries(r.stableford).forEach(([name, pts]) => {
+      if (!map[name]) map[name] = { name, byRound: {}, total: 0, netTotal: 0, netDNF: false, rds: 0 };
+      map[name].byRound[r.num] = pts;
+      map[name].total += pts;
+      map[name].rds++;
+      // Collect net strokes for tiebreaker
+      const ns = r.netStrokes && r.netStrokes[name];
+      if (typeof ns === "number") map[name].netTotal += ns;
+      else map[name].netDNF = true;
+    });
+  });
+
+  // Sort: higher points wins; tie broken by lower net strokes; DNF net goes last
+  const rows = Object.values(map).sort((a, b) => {
+    if (b.total !== a.total) return b.total - a.total;
+    const aN = a.netDNF ? Infinity : a.netTotal;
+    const bN = b.netDNF ? Infinity : b.netTotal;
+    return aN - bN;
+  });
+
+  document.getElementById("pts-badge").textContent =
+    ROUNDS.length + " Round" + (ROUNDS.length !== 1 ? "s" : "") + " Played";
+
+  let h = `<thead><tr>
+    <th class="c">Pos</th><th>Player</th>
+    ${roundNums.map(n => `<th class="c">R${n}</th>`).join("")}
+    <th class="c">Total</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((p, i) => {
+    // True tie only if points AND net strokes are both equal
+    const pNet = p.netDNF ? Infinity : p.netTotal;
+    let first = i;
+    while (first > 0) {
+      const prev = rows[first - 1];
+      const prevNet = prev.netDNF ? Infinity : prev.netTotal;
+      if (prev.total === p.total && prevNet === pNet) first--;
+      else break;
+    }
+    const nextSame = i < rows.length - 1 && (() => {
+      const nx = rows[i + 1];
+      const nxNet = nx.netDNF ? Infinity : nx.netTotal;
+      return nx.total === p.total && nxNet === pNet;
+    })();
+    const tied = first !== i || nextSame;
+    const pos = tied ? "T" + (first + 1) : (i + 1);
+
+    h += `<tr class="${rowClass(i, false)}">
+      <td class="pos">${pos}</td>
+      <td class="name">${p.name}</td>
+      ${roundNums.map(n => `<td class="pts">${p.byRound[n] !== undefined ? p.byRound[n] : "—"}</td>`).join("")}
+      <td class="total">${p.total}</td>
+    </tr>`;
+  });
+
+  document.getElementById("pts-table").innerHTML = h + "</tbody>";
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BUILD: NET STROKES
+// ═══════════════════════════════════════════════════════════════════
+
+function buildStrokes() {
+  const roundNums = ROUNDS.map(r => r.num);
+  const map = {};
+
+  ROUNDS.forEach(r => {
+    Object.entries(r.netStrokes).forEach(([name, val]) => {
+      if (!map[name]) map[name] = { name, byRound: {}, total: 0, dnf: false };
+      map[name].byRound[r.num] = val;
+      if (typeof val === "number") map[name].total += val;
+      else map[name].dnf = true;
+    });
+  });
+
+  const rows = Object.values(map).sort((a, b) => {
+    if (a.dnf && !b.dnf) return 1;
+    if (!a.dnf && b.dnf) return -1;
+    return a.total - b.total;
+  });
+
+  document.getElementById("str-badge").textContent =
+    ROUNDS.length + " Round" + (ROUNDS.length !== 1 ? "s" : "") + " Played";
+
+  let h = `<thead><tr>
+    <th class="c">Pos</th><th>Player</th>
+    ${roundNums.map(n => `<th class="c">R${n}</th>`).join("")}
+    <th class="c">Total</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((p, i) => {
+    h += `<tr class="${rowClass(i, p.dnf)}">
+      <td class="pos">${posLabel(i, rows, "total", true)}</td>
+      <td class="name">${p.name}</td>
+      ${roundNums.map(n => {
+        const v = p.byRound[n];
+        if (v === undefined)              return `<td class="dnf">—</td>`;
+        if (typeof v === "string")        return `<td class="dnf">${v}</td>`;
+        return `<td class="num">${v}</td>`;
+      }).join("")}
+      <td class="${p.dnf ? "dnf" : "total"}">${p.dnf ? "DNF" : p.total}</td>
+    </tr>`;
+  });
+
+  document.getElementById("str-table").innerHTML = h + "</tbody>";
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BUILD: HANDICAP
+// ═══════════════════════════════════════════════════════════════════
+
+function buildHandicap() {
+  const roundNums = HANDICAP_HISTORY.map(r => r.num);
+  const latest = HANDICAP_HISTORY[HANDICAP_HISTORY.length - 1];
+
+  const rows = ALL_PLAYERS.map(name => {
+    const byRound = {};
+    HANDICAP_HISTORY.forEach(r => {
+      if (r.indices[name] !== undefined) byRound[r.num] = r.indices[name];
+    });
+    const current = latest.indices[name] !== undefined ? latest.indices[name] : Infinity;
+    return { name, byRound, current };
+  }).sort((a, b) => a.current - b.current);
+
+  document.getElementById("hcp-badge").textContent = "Through Round " + HANDICAP_HISTORY.length;
+
+  let h = `<thead><tr>
+    <th class="c">Rnk</th><th>Player</th>
+    ${roundNums.map(n => `<th class="c">R${n}</th>`).join("")}
+  </tr></thead><tbody>`;
+
+  rows.forEach((p, i) => {
+    h += `<tr class="${rowClass(i, false)}">
+      <td class="pos">${i + 1}</td>
+      <td class="name">${p.name}</td>
+      ${roundNums.map(n => {
+        const v = p.byRound[n];
+        return v !== undefined ? `<td class="idx">${v}</td>` : `<td class="dnf">—</td>`;
+      }).join("")}
+    </tr>`;
+  });
+
+  document.getElementById("hcp-table").innerHTML = h + "</tbody>";
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════
+
+function show(id, btn) {
+  document.querySelectorAll(".tab-pane").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+  document.getElementById("tab-" + id).classList.add("active");
+  btn.classList.add("active");
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  BUILD: GROSS STROKES
+// ═══════════════════════════════════════════════════════════════════
+
+function buildGross() {
+  const roundNums = ROUNDS.map(r => r.num);
+  const map = {};
+
+  ALL_PLAYERS.forEach(name => {
+    map[name] = { name, byRound: {}, total: 0, dnf: false };
+  });
+
+  ROUNDS.forEach(r => {
+    Object.entries(r.grossStrokes || {}).forEach(([name, val]) => {
+      if (!map[name]) map[name] = { name, byRound: {}, total: 0, dnf: false };
+      map[name].byRound[r.num] = val;
+      if (typeof val === "number") map[name].total += val;
+      else map[name].dnf = true;
+    });
+  });
+
+  const rows = Object.values(map).sort((a, b) => {
+    if (a.dnf && !b.dnf) return 1;
+    if (!a.dnf && b.dnf) return -1;
+    return a.total - b.total;
+  });
+
+  document.getElementById("gross-badge").textContent =
+    ROUNDS.length + " Round" + (ROUNDS.length !== 1 ? "s" : "") + " Played";
+
+  let h = `<thead><tr>
+    <th class="c">Pos</th><th>Player</th>
+    ${roundNums.map(n => `<th class="c">R${n}</th>`).join("")}
+    <th class="c">Total</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((p, i) => {
+    h += `<tr class="${rowClass(i, p.dnf)}">
+      <td class="pos">${posLabel(i, rows, "total", true)}</td>
+      <td class="name">${p.name}</td>
+      ${roundNums.map(n => {
+        const v = p.byRound[n];
+        if (v === undefined)        return `<td class="dnf">—</td>`;
+        if (typeof v === "string")  return `<td class="dnf">${v}</td>`;
+        return `<td class="num">${v}</td>`;
+      }).join("")}
+      <td class="${p.dnf ? "dnf" : "total"}">${p.dnf ? "DNF" : p.total}</td>
+    </tr>`;
+  });
+
+  document.getElementById("gross-table").innerHTML = h + "</tbody>";
+}
+
+// ── INIT ──
+buildPoints();
+buildStrokes();
+buildGross();
+buildHandicap();
+</script>
+</body>
+</html>
