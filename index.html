@@ -451,20 +451,30 @@ function buildGross() {
 //  BUILD: HANDICAP
 // ═══════════════════════════════════════════════════════════════
 function buildHandicap() {
-  // Show playing handicap for each scoring round (all players, including pending)
-  const rndNums = ROUNDS.map(r => r.num);
+  // E1/E2 = post-establishment indices | R1/R2 = post-scoring-round indices
+  // For latest scoring round: show value for ALL players (pending = current index = going-into that round)
+  const allLabels = [...ESTABLISHMENT.map(e=>e.label), ...ROUNDS.map(r=>`R${r.num}`)];
+  const latestRndLabel = `R${ROUNDS[ROUNDS.length-1].num}`;
   document.getElementById('hcp-badge').textContent = 'Through Round ' + ROUNDS.length;
 
-  // Sort by latest playing handicap
   const rows = ALL_PLAYERS.map(p => {
-    const byRound = computed.playingHcp[p];
-    const lastRnd = rndNums[rndNums.length - 1];
-    return { name: p, byRound, latest: byRound[lastRnd] !== undefined ? byRound[lastRnd] : Infinity };
+    const hist = computed.hcpHistory[p];
+    const byLabel = {};
+    hist.forEach(h => byLabel[h.label] = h.index);
+
+    // For latest round, pending players show their current (going-in) index
+    if (byLabel[latestRndLabel] === undefined) {
+      const currentIdx = hist.length ? hist[hist.length-1].index : 0;
+      byLabel[latestRndLabel] = currentIdx;
+    }
+
+    const latest = byLabel[latestRndLabel] !== undefined ? byLabel[latestRndLabel] : Infinity;
+    return { name: p, byLabel, latest };
   }).sort((a, b) => a.latest - b.latest);
 
-  let h = `<thead><tr><th class="c">Rnk</th><th>Player</th>${rndNums.map(n=>`<th class="c">R${n} HCP</th>`).join('')}</tr></thead><tbody>`;
+  let h = `<thead><tr><th class="c">Rnk</th><th>Player</th>${allLabels.map(l=>`<th class="c">${l}</th>`).join('')}</tr></thead><tbody>`;
   rows.forEach((p, i) => {
-    h += `<tr class="${rowClass(i)}"><td class="pos">${i+1}</td><td class="name">${p.name}</td>${rndNums.map(n=>`<td class="idx">${p.byRound[n] !== undefined ? p.byRound[n] : '—'}</td>`).join('')}</tr>`;
+    h += `<tr class="${rowClass(i)}"><td class="pos">${i+1}</td><td class="name">${p.name}</td>${allLabels.map(l=>`<td class="${p.byLabel[l]!==undefined?'idx':'dnf'}">${p.byLabel[l]!==undefined?p.byLabel[l]:'—'}</td>`).join('')}</tr>`;
   });
   document.getElementById('hcp-table').innerHTML = h + '</tbody>';
 }
