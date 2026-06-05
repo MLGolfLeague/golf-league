@@ -115,7 +115,7 @@
   </div>
 </main>
 
-<footer>MicroLumen Golf League &bull; Full Swing Simulator</footer>
+<footer>MicroLumen Golf League &bull; Full Swing Simulator &bull; Updated through R2 (partial)</footer>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -241,6 +241,22 @@ const ROUNDS = [
       'Rene Alvarado':    [8,13,5,7,13,15,13,16,10],
       'Cynthia Soto':     [38,15,38,7,11,10,15,6,7],
       'Lydia Johnson':    [32,51,51,17,47,18,14,12,28]
+    },
+    net: {
+      'Samuel Nieves':    [4,4,4,3,6,3,4,2,3],
+      'Pat Muia':         [4,4,3,3,2,4,5,6,5],
+      'Brent Osgood':     [4,4,3,4,5,4,4,5,4],
+      'Scott Goodwin':    [4,3,4,3,2,5,8,5,3],
+      'Michael Ramos':    [4,5,4,4,3,3,5,3,8],
+      'Jackson Stupp':    [4,5,4,4,4,5,4,5,5],
+      'Timothy Lynch':    [6,6,5,5,4,4,3,5,4],
+      'Shane Pritchett':  [5,5,5,3,3,3,9,7,3],
+      'Israel Nieves':    [6,4,5,2,9,6,3,9,3],
+      'Shawn Gillispie':  [5,7,5,5,5,4,4,9,7],
+      'Chase Campanella': [3,7,8,6,6,4,10,8,4],
+      'Rene Alvarado':    [6,11,3,5,11,13,11,14,8],
+      'Cynthia Soto':     [36,13,36,5,9,8,13,4,5],
+      'Lydia Johnson':    [30,49,49,15,45,16,12,10,26]
     }
   },
   {
@@ -254,6 +270,16 @@ const ROUNDS = [
       'Rene Alvarado':    [7,8,4,9,8,7,10,8,10],
       'Cynthia Soto':     [23,18,13,12,15,13,56,12,17],
       'Lydia Johnson':    [18,17,9,10,12,11,24,12,10]
+    },
+    net: {
+      'Timothy Lynch':    [5,3,3,4,3,3,5,3,4],
+      'Michael Ramos':    [4,4,5,4,4,3,5,4,4],
+      'Brent Osgood':     [5,4,5,5,5,4,4,2,5],
+      'Scott Goodwin':    [6,7,4,6,4,9,3,3,4],
+      'Rene Alvarado':    [5,6,2,7,6,5,8,6,8],
+      'Samuel Nieves':    [8,7,6,4,5,4,10,37,6],
+      'Lydia Johnson':    [16,15,7,8,10,9,22,10,8],
+      'Cynthia Soto':     [21,16,11,10,13,11,54,10,15]
     }
   }
   // Add future rounds here — same structure
@@ -306,7 +332,8 @@ const computed = (() => {
       if (!rnd.gross[p]) { roundData.players[p] = null; return; }
 
       const ch9 = calcCH9(idx, rating, slope);
-      const net = applyStrokes(rnd.gross[p], c.si, ch9);
+      // Use actual simulator net if available, otherwise calculate from gross
+      const net = (rnd.net && rnd.net[p]) ? rnd.net[p] : applyStrokes(rnd.gross[p], c.si, ch9);
       const netTotal = net.reduce((a,b)=>a+b,0);
       const pts = stableford(net, c.par);
       const grossTotal = rnd.gross[p].reduce((a,b)=>a+b,0);
