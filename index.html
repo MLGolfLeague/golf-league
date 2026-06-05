@@ -110,9 +110,7 @@
       <div class="sec-title">Handicap Index</div>
       <div class="badge" id="hcp-badge"></div>
     </div>
-    <div class="hcp-note">
-      Use <strong>E2</strong> for R1 (TPC Sawgrass) &bull; Use <strong>R1</strong> for R2 (PGA National) &bull; Each round uses the column before it &bull; Pending players use their most recent column
-    </div>
+    <div class="hcp-note">Each column shows the handicap used for the next round</div>
     <div class="table-wrap"><table class="lb-table" id="hcp-table"></table></div>
   </div>
 </main>
@@ -461,7 +459,14 @@ function buildHandicap() {
     return { name: p, byLabel, latest };
   }).sort((a, b) => a.latest - b.latest);
 
-  let h = `<thead><tr><th class="c">Rnk</th><th>Player</th>${allLabels.map(l=>`<th class="c">${l}</th>`).join('')}</tr></thead><tbody>`;
+  // Relabel so each column shows which round the handicap is USED for
+  const displayLabel = l => {
+    if (l === 'E1') return 'E1';
+    if (l === 'E2') return 'R1 HCP';
+    if (l.startsWith('R')) return `R${parseInt(l.slice(1))+1} HCP`;
+    return l;
+  };
+  let h = `<thead><tr><th class="c">Rnk</th><th>Player</th>${allLabels.map(l=>`<th class="c">${displayLabel(l)}</th>`).join('')}</tr></thead><tbody>`;
   rows.forEach((p, i) => {
     h += `<tr class="${rowClass(i)}"><td class="pos">${i+1}</td><td class="name">${p.name}</td>${allLabels.map(l=>`<td class="${p.byLabel[l]!==undefined?'idx':'dnf'}">${p.byLabel[l]!==undefined?p.byLabel[l]:'—'}</td>`).join('')}</tr>`;
   });
