@@ -289,18 +289,25 @@ const computed = (() => {
   });
 
   // Process scoring rounds — compute net scores and points
-  const roundResults = []; // per scoring round: { num, course, players: {name: {gross, net, netTotal, pts, ch9, idxUsed}} }
+  const roundResults = [];
+  // playingHcp[player][roundNum] = handicap index used going INTO that round (all players)
+  const playingHcp = {};
+  ALL_PLAYERS.forEach(p => playingHcp[p] = {});
 
   ROUNDS.forEach(rnd => {
     const c = COURSES[rnd.course];
     const roundData = { num: rnd.num, course: rnd.course, players: {} };
 
     ALL_PLAYERS.forEach(p => {
-      if (!rnd.gross[p]) { roundData.players[p] = null; return; }
-
       const tee = getTee(p);
       const [rating, slope] = c.ratings[tee];
       const idx = calcIndex(playerDiffs[p]);
+
+      // Record playing handicap for ALL players for this round
+      playingHcp[p][rnd.num] = Math.round(idx);
+
+      if (!rnd.gross[p]) { roundData.players[p] = null; return; }
+
       const ch9 = calcCH9(idx, rating, slope);
       const net = applyStrokes(rnd.gross[p], c.si, ch9);
       const netTotal = net.reduce((a,b)=>a+b,0);
@@ -319,7 +326,7 @@ const computed = (() => {
     roundResults.push(roundData);
   });
 
-  return { roundResults, hcpHistory };
+  return { roundResults, hcpHistory, playingHcp };
 })();
 
 // ═══════════════════════════════════════════════════════════════
@@ -444,22 +451,20 @@ function buildGross() {
 //  BUILD: HANDICAP
 // ═══════════════════════════════════════════════════════════════
 function buildHandicap() {
-  // Collect all round labels
-  const labels = [...ESTABLISHMENT.map(e=>e.label), ...ROUNDS.map(r=>`R${r.num}`)];
+  // Show playing handicap for each scoring round (all players, including pending)
+  const rndNums = ROUNDS.map(r => r.num);
   document.getElementById('hcp-badge').textContent = 'Through Round ' + ROUNDS.length;
 
-  // Latest index for sorting
+  // Sort by latest playing handicap
   const rows = ALL_PLAYERS.map(p => {
-    const hist = computed.hcpHistory[p];
-    const byLabel = {};
-    hist.forEach(h => byLabel[h.label] = h.index);
-    const latest = hist.length ? hist[hist.length-1].index : null;
-    return { name: p, byLabel, latest: latest !== null ? latest : Infinity };
+    const byRound = computed.playingHcp[p];
+    const lastRnd = rndNums[rndNums.length - 1];
+    return { name: p, byRound, latest: byRound[lastRnd] !== undefined ? byRound[lastRnd] : Infinity };
   }).sort((a, b) => a.latest - b.latest);
 
-  let h = `<thead><tr><th class="c">Rnk</th><th>Player</th>${labels.map(l=>`<th class="c">${l}</th>`).join('')}</tr></thead><tbody>`;
+  let h = `<thead><tr><th class="c">Rnk</th><th>Player</th>${rndNums.map(n=>`<th class="c">R${n} HCP</th>`).join('')}</tr></thead><tbody>`;
   rows.forEach((p, i) => {
-    h += `<tr class="${rowClass(i)}"><td class="pos">${i+1}</td><td class="name">${p.name}</td>${labels.map(l=>`<td class="${p.byLabel[l]!==undefined?'idx':'dnf'}">${p.byLabel[l]!==undefined?p.byLabel[l]:'—'}</td>`).join('')}</tr>`;
+    h += `<tr class="${rowClass(i)}"><td class="pos">${i+1}</td><td class="name">${p.name}</td>${rndNums.map(n=>`<td class="idx">${p.byRound[n] !== undefined ? p.byRound[n] : '—'}</td>`).join('')}</tr>`;
   });
   document.getElementById('hcp-table').innerHTML = h + '</tbody>';
 }
