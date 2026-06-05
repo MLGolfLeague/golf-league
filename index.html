@@ -451,24 +451,14 @@ function buildGross() {
 //  BUILD: HANDICAP
 // ═══════════════════════════════════════════════════════════════
 function buildHandicap() {
-  // E1/E2 = post-establishment indices | R1/R2 = post-scoring-round indices
-  // For latest scoring round: show value for ALL players (pending = current index = going-into that round)
   const allLabels = [...ESTABLISHMENT.map(e=>e.label), ...ROUNDS.map(r=>`R${r.num}`)];
-  const latestRndLabel = `R${ROUNDS[ROUNDS.length-1].num}`;
   document.getElementById('hcp-badge').textContent = 'Through Round ' + ROUNDS.length;
 
   const rows = ALL_PLAYERS.map(p => {
     const hist = computed.hcpHistory[p];
     const byLabel = {};
     hist.forEach(h => byLabel[h.label] = h.index);
-
-    // For latest round, pending players show their current (going-in) index
-    if (byLabel[latestRndLabel] === undefined) {
-      const currentIdx = hist.length ? hist[hist.length-1].index : 0;
-      byLabel[latestRndLabel] = currentIdx;
-    }
-
-    const latest = byLabel[latestRndLabel] !== undefined ? byLabel[latestRndLabel] : Infinity;
+    const latest = hist.length ? hist[hist.length-1].index : Infinity;
     return { name: p, byLabel, latest };
   }).sort((a, b) => a.latest - b.latest);
 
