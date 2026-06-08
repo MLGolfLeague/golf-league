@@ -50,6 +50,11 @@
     td.blank { color: var(--text-gray); font-style: italic; font-size: 0.82rem; }
     td.idx { font-weight: 700; font-size: 1rem; color: var(--green-mid); }
     tr.r1 td.idx { color: var(--gold); }
+    .schedule-block { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+    .schedule-row { background: rgba(201,168,76,0.08); border: 1px solid var(--gold-dim); border-radius: 6px; padding: 10px 16px; display: flex; align-items: center; gap: 10px; font-family: sans-serif; flex: 1 1 180px; }
+    .sched-rnd { color: var(--gold); font-weight: 700; font-size: 0.8rem; letter-spacing: 2px; min-width: 24px; }
+    .sched-course { color: var(--cream); font-size: 0.85rem; font-weight: 600; flex: 1; }
+    .sched-holes { color: var(--gold-dim); font-size: 0.75rem; letter-spacing: 1px; white-space: nowrap; }
     footer { text-align: center; padding: 24px; color: rgba(201,168,76,0.3); font-family: sans-serif; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; }
     @media (max-width: 600px) {
       .league-title { font-size: 1.1rem; letter-spacing: 1px; }
@@ -86,6 +91,12 @@
       <div class="badge">Season 2</div>
     </div>
     <div class="hcp-note">Tiebreaker: lowest net strokes</div>
+    <div class="schedule-block">
+      <div class="schedule-row"><span class="sched-rnd">R1</span><span class="sched-course">Streamsong Black</span><span class="sched-holes">Front 9</span></div>
+      <div class="schedule-row"><span class="sched-rnd">R2</span><span class="sched-course">Creighton Farms</span><span class="sched-holes">Back 9</span></div>
+      <div class="schedule-row"><span class="sched-rnd">R3</span><span class="sched-course">Streamsong Blue</span><span class="sched-holes">Front 9</span></div>
+      <div class="schedule-row"><span class="sched-rnd">R4</span><span class="sched-course">Sebonack Golf Club</span><span class="sched-holes">Back 9</span></div>
+    </div>
     <div class="table-wrap"><table class="lb-table" id="pts-table"></table></div>
   </div>
 
