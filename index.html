@@ -21,7 +21,7 @@
     .tab-btn { background: none; border: none; color: #333; font-family: Georgia,serif; font-size: 0.95rem; letter-spacing: 1.5px; padding: 14px 30px; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.2s; text-transform: uppercase; flex: 1 1 auto; text-align: center; }
     .tab-btn:hover  { color: #000; background: rgba(0,0,0,0.05); }
     .tab-btn.active { color: #000; border-bottom-color: var(--gold); background: rgba(201,168,76,0.15); font-weight: bold; }
-    main { max-width: 860px; margin: 36px auto 60px; padding: 0 16px; }
+    main { max-width: 900px; margin: 36px auto 60px; padding: 0 16px; }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
     .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; }
@@ -30,24 +30,25 @@
     .hcp-note { background: rgba(201,168,76,0.08); border: 1px solid var(--gold-dim); border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-family: sans-serif; font-size: 0.8rem; color: rgba(232,201,122,0.75); line-height: 1.6; }
     .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .lb-table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 6px 28px rgba(0,0,0,0.6); }
-    .lb-table thead th { background: var(--green); color: var(--gold); font-family: sans-serif; font-size: 0.68rem; letter-spacing: 2.5px; text-transform: uppercase; padding: 12px 14px; border-bottom: 2px solid var(--gold-dim); }
-    .lb-table thead th.c { text-align: center; }
+    .lb-table thead th { background: var(--green); color: var(--gold); font-family: sans-serif; font-size: 0.68rem; letter-spacing: 2.5px; text-transform: uppercase; padding: 12px 14px; border-bottom: 2px solid var(--gold-dim); text-align: center; }
+    .lb-table thead th.left { text-align: left; }
+    .lb-table thead th.start-col { border-right: 2px solid var(--gold-dim); }
     .lb-table tbody tr { background: var(--off-white); color: var(--text); border-bottom: 1px solid #e0ddd4; transition: background 0.12s; }
     .lb-table tbody tr:hover { background: #f0ece0; }
     .lb-table tbody tr.r1 { background: linear-gradient(90deg,#fff8dc 0%,#fffbee 100%); border-left: 5px solid var(--gold); }
     .lb-table tbody tr.r2 { background: #fafaf2; border-left: 3px solid #ccc; }
     .lb-table tbody tr.r3 { background: #fafaf2; border-left: 3px solid #c8a86b; }
-    .lb-table tbody tr.dnf-row { opacity: 0.6; }
-    .lb-table td { padding: 11px 14px; font-family: sans-serif; font-size: 0.88rem; }
-    td.pos { text-align: center; font-weight: 700; font-size: 0.9rem; width: 52px; color: var(--text-gray); }
+    .lb-table td { padding: 11px 14px; font-family: sans-serif; font-size: 0.88rem; text-align: center; }
+    td.left { text-align: left; }
+    td.name { font-weight: 600; font-size: 0.92rem; text-align: left; }
+    td.pos { font-weight: 700; font-size: 0.9rem; color: var(--text-gray); }
     tr.r1 td.pos { color: var(--gold); font-size: 1.1rem; }
-    td.name { font-weight: 600; font-size: 0.92rem; }
-    td.num  { text-align: center; font-variant-numeric: tabular-nums; }
-    td.pts  { text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; }
-    td.total { text-align: center; font-weight: 700; font-size: 1.05rem; color: var(--green-mid); }
+    td.pts  { font-weight: 600; font-variant-numeric: tabular-nums; }
+    td.start-col { border-right: 2px solid #d0cdc0; }
+    td.total { font-weight: 700; font-size: 1.05rem; color: var(--green-mid); }
     tr.r1 td.total { color: var(--gold); }
-    td.dnf { text-align: center; color: var(--text-gray); font-style: italic; font-size: 0.82rem; }
-    td.idx { text-align: center; font-weight: 700; font-size: 1rem; color: var(--green-mid); }
+    td.blank { color: var(--text-gray); font-style: italic; font-size: 0.82rem; }
+    td.idx { font-weight: 700; font-size: 1rem; color: var(--green-mid); }
     tr.r1 td.idx { color: var(--gold); }
     footer { text-align: center; padding: 24px; color: rgba(201,168,76,0.3); font-family: sans-serif; font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; }
     @media (max-width: 600px) {
@@ -75,7 +76,6 @@
 <nav>
   <button class="tab-btn active" onclick="show('points',this)">Leaderboard</button>
   <button class="tab-btn"        onclick="show('strokes',this)">Net Strokes</button>
-  <button class="tab-btn"        onclick="show('gross',this)">Gross Strokes</button>
   <button class="tab-btn"        onclick="show('handicap',this)">Handicap</button>
 </nav>
 
@@ -83,50 +83,37 @@
   <div id="tab-points" class="tab-pane active">
     <div class="sec-head">
       <div class="sec-title">Points Leaderboard</div>
-      <div class="badge" id="pts-badge"></div>
+      <div class="badge">Season 2</div>
     </div>
-    <div class="hcp-note">Tiebreaker: lowest net strokes wins</div>
+    <div class="hcp-note">Tiebreaker: lowest net strokes</div>
     <div class="table-wrap"><table class="lb-table" id="pts-table"></table></div>
   </div>
 
   <div id="tab-strokes" class="tab-pane">
     <div class="sec-head">
       <div class="sec-title">Net Strokes</div>
-      <div class="badge" id="str-badge"></div>
+      <div class="badge">Season 2</div>
     </div>
+    <div class="hcp-note">Updated each round with actual net scores from the simulator</div>
     <div class="table-wrap"><table class="lb-table" id="str-table"></table></div>
-  </div>
-
-  <div id="tab-gross" class="tab-pane">
-    <div class="sec-head">
-      <div class="sec-title">Gross Strokes</div>
-      <div class="badge" id="gross-badge"></div>
-    </div>
-    <div class="table-wrap"><table class="lb-table" id="gross-table"></table></div>
   </div>
 
   <div id="tab-handicap" class="tab-pane">
     <div class="sec-head">
       <div class="sec-title">Handicap Index</div>
-      <div class="badge" id="hcp-badge"></div>
+      <div class="badge">Season 2</div>
     </div>
-    <div class="hcp-note">Each column shows the handicap used for the next round</div>
+    <div class="hcp-note">R1 column shows starting handicap for the new season</div>
     <div class="table-wrap"><table class="lb-table" id="hcp-table"></table></div>
   </div>
 </main>
 
-<footer>MicroLumen Golf League &bull; Full Swing Simulator &bull; Updated through R2 (partial)</footer>
+<footer>MicroLumen Golf League &bull; Full Swing Simulator &bull; Season 2</footer>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-//  TEE ASSIGNMENTS
+//  PLAYERS
 // ═══════════════════════════════════════════════════════════════
-function getTee(p) {
-  if (['Timothy Lynch','Pat Muia','Scott Goodwin'].includes(p)) return 'fwd';
-  if (['Cynthia Soto','Lydia Johnson'].includes(p)) return 'ladies';
-  return 'blue';
-}
-
 const ALL_PLAYERS = [
   'Brent Osgood','Jackson Stupp','Michael Ramos','Timothy Lynch',
   'Israel Nieves','Pat Muia','Shawn Gillispie','Scott Goodwin',
@@ -135,30 +122,61 @@ const ALL_PLAYERS = [
 ];
 
 // ═══════════════════════════════════════════════════════════════
-//  HANDICAP FUNCTIONS
+//  STARTING DATA — carried from TPC Sawgrass
 // ═══════════════════════════════════════════════════════════════
-function capHoles(scores, par) {
-  return scores.map((s, i) => Math.min(s, par[i] + 3));
-}
-function calcDiff(adj9, rating, slope) {
-  return (adj9 * 2 - rating) * 113 / slope;
-}
-function calcIndex(diffs) {
-  if (!diffs.length) return 0;
-  const last2 = diffs.slice(-2);
-  const avg = last2.reduce((a, b) => a + b, 0) / last2.length;
-  return Math.max(0, Math.min(36, avg * 0.96));
-}
-function calcCH9(index, rating, slope) {
-  return Math.max(0, Math.round((index * slope / 113 + (rating - 72)) / 2));
-}
-function applyStrokes(gross, si, ch9) {
-  return gross.map((g, i) => {
-    let s = (ch9 >= 1 && si[i] <= ch9) ? 1 : 0;
-    if (ch9 >= 10 && si[i] <= ch9 - 9) s = 2;
-    return g - s;
-  });
-}
+const STARTING_POINTS = {
+  'Samuel Nieves':    21,
+  'Scott Goodwin':    21,
+  'Brent Osgood':     18,
+  'Pat Muia':         18,
+  'Shane Pritchett':  17,
+  'Israel Nieves':    17,
+  'Michael Ramos':    16,
+  'Jackson Stupp':    15,
+  'Timothy Lynch':    14,
+  'Shawn Gillispie':  12,
+  'Chase Campanella':  7,
+  'Rene Alvarado':     3,
+  'Cynthia Soto':      2,
+  'Lydia Johnson':     0
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  HANDICAP TABLE — R1 = starting handicap, fill in after each round
+// ═══════════════════════════════════════════════════════════════
+const HANDICAP_TABLE = {
+  R1: {
+    'Brent Osgood':     2,
+    'Jackson Stupp':    2,
+    'Michael Ramos':    6,
+    'Timothy Lynch':   14,
+    'Israel Nieves':   17,
+    'Pat Muia':        15,
+    'Shawn Gillispie': 21,
+    'Scott Goodwin':   22,
+    'Shane Pritchett': 22,
+    'Samuel Nieves':   21,
+    'Chase Campanella':36,
+    'Rene Alvarado':   36,
+    'Cynthia Soto':    36,
+    'Lydia Johnson':   36
+  },
+  R2: {},
+  R3: {},
+  R4: {}
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  SCORING ROUNDS — add as played
+//  { num:1, course:'Streamsong Black', net:{player:[h1..h9],...} }
+// ═══════════════════════════════════════════════════════════════
+const ROUNDS = [];
+
+const ROUND_LABELS = ['R1','R2','R3','R4'];
+
+// ═══════════════════════════════════════════════════════════════
+//  STABLEFORD (used when rounds are added)
+// ═══════════════════════════════════════════════════════════════
 function stableford(net, par) {
   return net.reduce((pts, n, i) => {
     const d = n - par[i];
@@ -167,198 +185,10 @@ function stableford(net, par) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  COURSE DATA
-// ═══════════════════════════════════════════════════════════════
-const COURSES = {
-  'St Andrews':   { par:[4,4,4,4,5,4,4,3,4], si:[10,6,16,8,2,12,4,14,18], ratings:{blue:[71.8,133],fwd:[70.2,127],ladies:[76.5,140]} },
-  'Pebble Beach': { par:[4,5,4,4,3,5,3,4,4], si:[8,10,12,16,14,2,18,6,4],  ratings:{blue:[73.8,142],fwd:[71.2,134],ladies:[71.8,129]} },
-  'TPC Sawgrass': { par:[4,5,4,3,4,4,5,3,4], si:[12,8,16,18,4,6,10,14,2],  ratings:{blue:[73.9,148],fwd:[70.8,138],ladies:[70.4,130]} },
-  'PGA National': { par:[5,4,4,4,4,3,4,3,5], si:[8,4,14,10,12,16,2,18,6],  ratings:{blue:[73.6,142],fwd:[69.9,129],ladies:[71.7,136]} }
-};
-
-// ═══════════════════════════════════════════════════════════════
-//  ESTABLISHMENT ROUNDS (handicap only — no scoring)
-// ═══════════════════════════════════════════════════════════════
-const ESTABLISHMENT = [
-  {
-    label: 'E1', course: 'St Andrews',
-    gross: {
-      'Brent Osgood':     [4,4,4,4,4,4,4,4,3],
-      'Jackson Stupp':    [4,3,5,5,4,4,4,3,4],
-      'Timothy Lynch':    [5,5,4,6,5,4,3,2,4],
-      'Michael Ramos':    [4,4,8,4,5,4,4,3,4],
-      'Israel Nieves':    [5,5,5,5,5,4,4,4,5],
-      'Pat Muia':         [5,5,4,6,6,5,5,4,4],
-      'Shawn Gillispie':  [5,7,4,6,6,4,4,3,6],
-      'Scott Goodwin':    [4,7,6,6,7,5,5,4,5],
-      'Shane Pritchett':  [4,6,4,6,6,5,7,3,7],
-      'Samuel Nieves':    [4,9,6,7,7,5,5,3,4],
-      'Chase Campanella': [7,6,6,13,6,8,4,5,6],
-      'Rene Alvarado':    [10,9,8,7,10,7,4,6,10],
-      'Cynthia Soto':     [11,12,11,10,13,9,9,11,12],
-      'Lydia Johnson':    [12,10,14,13,10,11,30,11,17]
-    }
-  },
-  {
-    label: 'E2', course: 'Pebble Beach',
-    gross: {
-      'Brent Osgood':     [4,4,3,3,3,3,3,6,4],
-      'Jackson Stupp':    [4,4,4,3,2,5,3,7,4],
-      'Timothy Lynch':    [4,5,5,4,6,5,4,7,5],
-      'Michael Ramos':    [5,6,6,5,3,4,4,4,7],
-      'Israel Nieves':    [4,7,4,8,4,5,4,7,10],
-      'Pat Muia':         [5,6,4,5,6,6,3,8,5],
-      'Shawn Gillispie':  [6,7,4,5,5,7,3,5,6],
-      'Scott Goodwin':    [8,4,5,4,8,5,3,8,8],
-      'Shane Pritchett':  [6,7,4,5,9,7,4,9,8],
-      'Samuel Nieves':    [11,6,6,4,3,10,8,14,6],
-      'Chase Campanella': [6,13,6,8,6,12,5,9,10],
-      'Rene Alvarado':    [11,11,8,8,5,15,4,12,11],
-      'Lydia Johnson':    [23,27,30,23,58,18,5,25,18]
-      // Cynthia Soto: DNP
-    }
-  }
-];
-
-// ═══════════════════════════════════════════════════════════════
-//  SCORING ROUNDS — add future rounds here
-// ═══════════════════════════════════════════════════════════════
-const ROUNDS = [
-  {
-    num: 1, course: 'TPC Sawgrass',
-    gross: {
-      'Brent Osgood':     [4,4,3,4,5,4,4,5,4],
-      'Jackson Stupp':    [4,5,4,4,4,5,4,5,5],
-      'Timothy Lynch':    [6,7,5,5,5,5,4,5,5],
-      'Michael Ramos':    [4,6,4,4,4,4,5,3,9],
-      'Israel Nieves':    [7,5,5,2,10,7,4,10,4],
-      'Pat Muia':         [5,5,4,3,3,5,6,7,6],
-      'Shawn Gillispie':  [6,8,6,5,6,5,5,10,8],
-      'Scott Goodwin':    [5,4,5,4,4,6,9,6,5],
-      'Shane Pritchett':  [6,6,6,4,5,4,10,8,5],
-      'Samuel Nieves':    [5,5,5,4,8,4,5,3,5],
-      'Chase Campanella': [5,9,9,7,8,6,12,10,6],
-      'Rene Alvarado':    [8,13,5,7,13,15,13,16,10],
-      'Cynthia Soto':     [38,15,38,7,11,10,15,6,7],
-      'Lydia Johnson':    [32,51,51,17,47,18,14,12,28]
-    },
-    net: {
-      'Samuel Nieves':    [4,4,4,3,6,3,4,2,3],
-      'Pat Muia':         [4,4,3,3,2,4,5,6,5],
-      'Brent Osgood':     [4,4,3,4,5,4,4,5,4],
-      'Scott Goodwin':    [4,3,4,3,2,5,8,5,3],
-      'Michael Ramos':    [4,5,4,4,3,3,5,3,8],
-      'Jackson Stupp':    [4,5,4,4,4,5,4,5,5],
-      'Timothy Lynch':    [6,6,5,5,4,4,3,5,4],
-      'Shane Pritchett':  [5,5,5,3,3,3,9,7,3],
-      'Israel Nieves':    [6,4,5,2,9,6,3,9,3],
-      'Shawn Gillispie':  [5,7,5,5,5,4,4,9,7],
-      'Chase Campanella': [3,7,8,6,6,4,10,8,4],
-      'Rene Alvarado':    [6,11,3,5,11,13,11,14,8],
-      'Cynthia Soto':     [36,13,36,5,9,8,13,4,5],
-      'Lydia Johnson':    [30,49,49,15,45,16,12,10,26]
-    }
-  },
-  {
-    num: 2, course: 'PGA National',
-    gross: {
-      'Brent Osgood':     [5,4,5,5,5,4,4,2,5],
-      'Timothy Lynch':    [6,4,4,5,4,4,6,3,5],
-      'Michael Ramos':    [5,5,5,4,4,3,6,4,5],
-      'Scott Goodwin':    [7,8,5,7,5,10,4,4,5],
-      'Samuel Nieves':    [9,8,7,5,6,5,11,37,7],
-      'Rene Alvarado':    [7,8,4,9,8,7,10,8,10],
-      'Cynthia Soto':     [23,18,13,12,15,13,56,12,17],
-      'Lydia Johnson':    [18,17,9,10,12,11,24,12,10]
-    },
-    net: {
-      'Timothy Lynch':    [5,3,3,4,3,3,5,3,4],
-      'Michael Ramos':    [4,4,5,4,4,3,5,4,4],
-      'Brent Osgood':     [5,4,5,5,5,4,4,2,5],
-      'Scott Goodwin':    [6,7,4,6,4,9,3,3,4],
-      'Rene Alvarado':    [5,6,2,7,6,5,8,6,8],
-      'Samuel Nieves':    [8,7,6,4,5,4,10,37,6],
-      'Lydia Johnson':    [16,15,7,8,10,9,22,10,8],
-      'Cynthia Soto':     [21,16,11,10,13,11,54,10,15]
-    }
-  }
-  // Add future rounds here — same structure
-];
-
-// ═══════════════════════════════════════════════════════════════
-//  PRECOMPUTE
-// ═══════════════════════════════════════════════════════════════
-const computed = (() => {
-  // Track diffs per player across all rounds (establishment + scoring)
-  const playerDiffs = {};
-  ALL_PLAYERS.forEach(p => playerDiffs[p] = []);
-
-  // Handicap index recorded after each round (for display)
-  const hcpHistory = {}; // player -> [{label, index}]
-  ALL_PLAYERS.forEach(p => hcpHistory[p] = []);
-
-  // Process establishment rounds
-  ESTABLISHMENT.forEach(er => {
-    const c = COURSES[er.course];
-    ALL_PLAYERS.forEach(p => {
-      if (!er.gross[p]) return;
-      const tee = getTee(p);
-      const [rating, slope] = c.ratings[tee];
-      const capped = capHoles(er.gross[p], c.par);
-      const d = calcDiff(capped.reduce((a,b)=>a+b,0), rating, slope);
-      playerDiffs[p].push(d);
-      hcpHistory[p].push({ label: er.label, index: Math.round(calcIndex(playerDiffs[p])) });
-    });
-  });
-
-  // Process scoring rounds — compute net scores and points
-  const roundResults = [];
-  // playingHcp[player][roundNum] = handicap index used going INTO that round (all players)
-  const playingHcp = {};
-  ALL_PLAYERS.forEach(p => playingHcp[p] = {});
-
-  ROUNDS.forEach(rnd => {
-    const c = COURSES[rnd.course];
-    const roundData = { num: rnd.num, course: rnd.course, players: {} };
-
-    ALL_PLAYERS.forEach(p => {
-      const tee = getTee(p);
-      const [rating, slope] = c.ratings[tee];
-      const idx = calcIndex(playerDiffs[p]);
-
-      // Record playing handicap for ALL players for this round
-      playingHcp[p][rnd.num] = Math.round(idx);
-
-      if (!rnd.gross[p]) { roundData.players[p] = null; return; }
-
-      const ch9 = calcCH9(idx, rating, slope);
-      // Use actual simulator net if available, otherwise calculate from gross
-      const net = (rnd.net && rnd.net[p]) ? rnd.net[p] : applyStrokes(rnd.gross[p], c.si, ch9);
-      const netTotal = net.reduce((a,b)=>a+b,0);
-      const pts = stableford(net, c.par);
-      const grossTotal = rnd.gross[p].reduce((a,b)=>a+b,0);
-
-      roundData.players[p] = { gross: rnd.gross[p], grossTotal, net, netTotal, pts, ch9, idxUsed: Math.round(idx) };
-
-      // Update diffs after scoring this round
-      const capped = capHoles(rnd.gross[p], c.par);
-      const d = calcDiff(capped.reduce((a,b)=>a+b,0), rating, slope);
-      playerDiffs[p].push(d);
-      hcpHistory[p].push({ label: `R${rnd.num}`, index: Math.round(calcIndex(playerDiffs[p])) });
-    });
-
-    roundResults.push(roundData);
-  });
-
-  return { roundResults, hcpHistory, playingHcp };
-})();
-
-// ═══════════════════════════════════════════════════════════════
 //  HELPERS
 // ═══════════════════════════════════════════════════════════════
-function rowClass(i) {
-  return i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
-}
+function rowClass(i) { return i===0?'r1':i===1?'r2':i===2?'r3':''; }
+
 function posLabel(rows, i, key) {
   const val = rows[i][key];
   let first = i;
@@ -368,35 +198,50 @@ function posLabel(rows, i, key) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  BUILD: POINTS LEADERBOARD
+//  BUILD: LEADERBOARD
 // ═══════════════════════════════════════════════════════════════
 function buildPoints() {
-  const rndNums = ROUNDS.map(r => r.num);
-  document.getElementById('pts-badge').textContent = ROUNDS.length + ' Round' + (ROUNDS.length !== 1 ? 's' : '') + ' Played';
+  const roundPts = {};
+  const roundNet = {};
+  ALL_PLAYERS.forEach(p => { roundPts[p] = {}; roundNet[p] = {}; });
 
-  const map = {};
-  ALL_PLAYERS.forEach(p => map[p] = { name: p, byRound: {}, total: 0, netTotal: 0 });
-
-  computed.roundResults.forEach(rnd => {
+  ROUNDS.forEach(rnd => {
     ALL_PLAYERS.forEach(p => {
-      const d = rnd.players[p];
-      if (!d) return;
-      map[p].byRound[rnd.num] = d.pts;
-      map[p].total += d.pts;
-      map[p].netTotal += d.netTotal;
+      if (!rnd.net || !rnd.net[p]) return;
+      roundPts[p][rnd.num] = rnd.pts ? rnd.pts[p] : stableford(rnd.net[p], rnd.par);
+      roundNet[p][rnd.num] = rnd.net[p].reduce((a,b)=>a+b,0);
     });
   });
 
-  const rows = Object.values(map).sort((a, b) =>
-    b.total !== a.total ? b.total - a.total : a.netTotal - b.netTotal
-  );
+  const rows = ALL_PLAYERS.map(p => {
+    const start = STARTING_POINTS[p] || 0;
+    const addlPts = Object.values(roundPts[p]).reduce((a,b)=>a+b,0);
+    const addlNet = Object.values(roundNet[p]).reduce((a,b)=>a+b,0);
+    return { name:p, start, byRound: roundPts[p], total: start+addlPts, totalNet: addlNet };
+  }).sort((a,b) => b.total!==a.total ? b.total-a.total : a.totalNet-b.totalNet);
 
-  let h = `<thead><tr><th class="c">Pos</th><th>Player</th>${rndNums.map(n=>`<th class="c">R${n}</th>`).join('')}<th class="c">Total</th></tr></thead><tbody>`;
-  rows.forEach((p, i) => {
+  let h = `<thead><tr>
+    <th class="c">Pos</th><th class="left">Player</th>
+    <th class="c start-col">Starting</th>
+    ${ROUND_LABELS.map(l=>`<th class="c">${l}</th>`).join('')}
+    <th class="c">Total</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((p,i) => {
     const pos = posLabel(rows, i, 'total');
-    const f = n => p.byRound[n] !== undefined ? p.byRound[n] : '—';
-    h += `<tr class="${rowClass(i)}"><td class="pos">${pos}</td><td class="name">${p.name}</td>${rndNums.map(n=>`<td class="pts">${f(n)}</td>`).join('')}<td class="total">${p.total}</td></tr>`;
+    h += `<tr class="${rowClass(i)}">
+      <td class="pos">${pos}</td>
+      <td class="name">${p.name}</td>
+      <td class="pts start-col">${p.start}</td>
+      ${ROUND_LABELS.map(l => {
+        const n = parseInt(l.slice(1));
+        const v = p.byRound[n];
+        return `<td class="${v!==undefined?'pts':'blank'}">${v!==undefined?v:'—'}</td>`;
+      }).join('')}
+      <td class="total">${p.total}</td>
+    </tr>`;
   });
+
   document.getElementById('pts-table').innerHTML = h + '</tbody>';
 }
 
@@ -404,99 +249,76 @@ function buildPoints() {
 //  BUILD: NET STROKES
 // ═══════════════════════════════════════════════════════════════
 function buildStrokes() {
-  const rndNums = ROUNDS.map(r => r.num);
-  document.getElementById('str-badge').textContent = ROUNDS.length + ' Round' + (ROUNDS.length !== 1 ? 's' : '') + ' Played';
+  const roundNet = {};
+  ALL_PLAYERS.forEach(p => roundNet[p] = {});
 
-  const map = {};
-  ALL_PLAYERS.forEach(p => map[p] = { name: p, byRound: {}, total: 0, dnf: false });
-
-  computed.roundResults.forEach(rnd => {
+  ROUNDS.forEach(rnd => {
     ALL_PLAYERS.forEach(p => {
-      const d = rnd.players[p];
-      if (!d) return;
-      map[p].byRound[rnd.num] = d.netTotal;
-      map[p].total += d.netTotal;
+      if (!rnd.net || !rnd.net[p]) return;
+      roundNet[p][rnd.num] = rnd.net[p].reduce((a,b)=>a+b,0);
     });
   });
 
-  const rows = Object.values(map).sort((a, b) => {
-    const aHas = Object.keys(a.byRound).length > 0;
-    const bHas = Object.keys(b.byRound).length > 0;
-    if (!aHas && bHas) return 1;
-    if (aHas && !bHas) return -1;
+  const rows = ALL_PLAYERS.map(p => {
+    const total = Object.values(roundNet[p]).reduce((a,b)=>a+b,0);
+    const hasAny = Object.keys(roundNet[p]).length > 0;
+    return { name:p, byRound: roundNet[p], total, hasAny };
+  }).sort((a,b) => {
+    if (!a.hasAny && b.hasAny) return 1;
+    if (a.hasAny && !b.hasAny) return -1;
     return a.total - b.total;
   });
 
-  let h = `<thead><tr><th class="c">Pos</th><th>Player</th>${rndNums.map(n=>`<th class="c">R${n}</th>`).join('')}<th class="c">Total</th></tr></thead><tbody>`;
-  rows.forEach((p, i) => {
-    const hasAny = Object.keys(p.byRound).length > 0;
-    const pos = hasAny ? posLabel(rows.filter(r=>Object.keys(r.byRound).length>0), rows.filter(r=>Object.keys(r.byRound).length>0).indexOf(p), 'total') : '—';
-    h += `<tr class="${rowClass(i)}"><td class="pos">${pos}</td><td class="name">${p.name}</td>${rndNums.map(n=>`<td class="${p.byRound[n]!==undefined?'num':'dnf'}">${p.byRound[n]!==undefined?p.byRound[n]:'—'}</td>`).join('')}<td class="${hasAny?'total':'dnf'}">${hasAny?p.total:'—'}</td></tr>`;
+  let h = `<thead><tr>
+    <th class="c">Pos</th><th class="left">Player</th>
+    ${ROUND_LABELS.map(l=>`<th class="c">${l}</th>`).join('')}
+    <th class="c">Total</th>
+  </tr></thead><tbody>`;
+
+  rows.forEach((p,i) => {
+    const playedRows = rows.filter(r => r.hasAny);
+    const pos = p.hasAny ? posLabel(playedRows, playedRows.indexOf(p), 'total') : '—';
+    h += `<tr class="${rowClass(i)}">
+      <td class="pos">${pos}</td>
+      <td class="name">${p.name}</td>
+      ${ROUND_LABELS.map(l => {
+        const n = parseInt(l.slice(1));
+        const v = p.byRound[n];
+        return `<td class="${v!==undefined?'pts':'blank'}">${v!==undefined?v:'—'}</td>`;
+      }).join('')}
+      <td class="${p.hasAny?'total':'blank'}">${p.hasAny?p.total:'—'}</td>
+    </tr>`;
   });
+
   document.getElementById('str-table').innerHTML = h + '</tbody>';
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  BUILD: GROSS STROKES
-// ═══════════════════════════════════════════════════════════════
-function buildGross() {
-  const rndNums = ROUNDS.map(r => r.num);
-  document.getElementById('gross-badge').textContent = ROUNDS.length + ' Round' + (ROUNDS.length !== 1 ? 's' : '') + ' Played';
-
-  const map = {};
-  ALL_PLAYERS.forEach(p => map[p] = { name: p, byRound: {}, total: 0 });
-
-  computed.roundResults.forEach(rnd => {
-    ALL_PLAYERS.forEach(p => {
-      const d = rnd.players[p];
-      if (!d) return;
-      map[p].byRound[rnd.num] = d.grossTotal;
-      map[p].total += d.grossTotal;
-    });
-  });
-
-  const rows = Object.values(map).sort((a, b) => {
-    const aHas = Object.keys(a.byRound).length > 0;
-    const bHas = Object.keys(b.byRound).length > 0;
-    if (!aHas && bHas) return 1;
-    if (aHas && !bHas) return -1;
-    return a.total - b.total;
-  });
-
-  let h = `<thead><tr><th class="c">Pos</th><th>Player</th>${rndNums.map(n=>`<th class="c">R${n}</th>`).join('')}<th class="c">Total</th></tr></thead><tbody>`;
-  rows.forEach((p, i) => {
-    const hasAny = Object.keys(p.byRound).length > 0;
-    h += `<tr class="${rowClass(i)}"><td class="pos">${i+1}</td><td class="name">${p.name}</td>${rndNums.map(n=>`<td class="${p.byRound[n]!==undefined?'num':'dnf'}">${p.byRound[n]!==undefined?p.byRound[n]:'—'}</td>`).join('')}<td class="${hasAny?'total':'dnf'}">${hasAny?p.total:'—'}</td></tr>`;
-  });
-  document.getElementById('gross-table').innerHTML = h + '</tbody>';
 }
 
 // ═══════════════════════════════════════════════════════════════
 //  BUILD: HANDICAP
 // ═══════════════════════════════════════════════════════════════
 function buildHandicap() {
-  const allLabels = [...ESTABLISHMENT.map(e=>e.label), ...ROUNDS.map(r=>`R${r.num}`)];
-  document.getElementById('hcp-badge').textContent = 'Through Round ' + ROUNDS.length;
+  const rows = ALL_PLAYERS.map(p => ({
+    name: p,
+    r1: HANDICAP_TABLE.R1[p],
+    r2: HANDICAP_TABLE.R2[p],
+    r3: HANDICAP_TABLE.R3[p],
+    r4: HANDICAP_TABLE.R4[p]
+  })).sort((a,b) => (a.r1??Infinity) - (b.r1??Infinity));
 
-  const rows = ALL_PLAYERS.map(p => {
-    const hist = computed.hcpHistory[p];
-    const byLabel = {};
-    hist.forEach(h => byLabel[h.label] = h.index);
-    const latest = hist.length ? hist[hist.length-1].index : Infinity;
-    return { name: p, byLabel, latest };
-  }).sort((a, b) => a.latest - b.latest);
+  let h = `<thead><tr>
+    <th class="c">Rnk</th><th class="left">Player</th>
+    <th class="c">R1</th><th class="c">R2</th><th class="c">R3</th><th class="c">R4</th>
+  </tr></thead><tbody>`;
 
-  // Relabel so each column shows which round the handicap is USED for
-  const displayLabel = l => {
-    if (l === 'E1') return 'E1';
-    if (l === 'E2') return 'R1 HCP';
-    if (l.startsWith('R')) return `R${parseInt(l.slice(1))+1} HCP`;
-    return l;
-  };
-  let h = `<thead><tr><th class="c">Rnk</th><th>Player</th>${allLabels.map(l=>`<th class="c">${displayLabel(l)}</th>`).join('')}</tr></thead><tbody>`;
-  rows.forEach((p, i) => {
-    h += `<tr class="${rowClass(i)}"><td class="pos">${i+1}</td><td class="name">${p.name}</td>${allLabels.map(l=>`<td class="${p.byLabel[l]!==undefined?'idx':'dnf'}">${p.byLabel[l]!==undefined?p.byLabel[l]:'—'}</td>`).join('')}</tr>`;
+  rows.forEach((p,i) => {
+    const cell = (v) => v!==undefined ? `<td class="idx">${v}</td>` : `<td class="blank">—</td>`;
+    h += `<tr class="${rowClass(i)}">
+      <td class="pos">${i+1}</td>
+      <td class="name">${p.name}</td>
+      ${cell(p.r1)}${cell(p.r2)}${cell(p.r3)}${cell(p.r4)}
+    </tr>`;
   });
+
   document.getElementById('hcp-table').innerHTML = h + '</tbody>';
 }
 
@@ -510,10 +332,8 @@ function show(id, btn) {
   btn.classList.add('active');
 }
 
-// ── INIT ──
 buildPoints();
 buildStrokes();
-buildGross();
 buildHandicap();
 </script>
 </body>
