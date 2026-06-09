@@ -175,28 +175,46 @@ const HANDICAP_TABLE = {
     'Cynthia Soto':    36,
     'Lydia Johnson':   36
   },
-  R2: {},
+  R2: {
+    'Timothy Lynch':   14,
+    'Israel Nieves':   17,
+    'Michael Ramos':    6,
+    'Brent Osgood':     2,
+    'Lydia Johnson':   36,
+    'Chase Campanella':18
+  },
   R3: {},
   R4: {}
 };
 
 // ═══════════════════════════════════════════════════════════════
-//  SCORING ROUNDS — add as played
-//  { num:1, course:'Streamsong Black', net:{player:[h1..h9],...} }
+//  ROUND POINTS — updated each round
 // ═══════════════════════════════════════════════════════════════
-const ROUNDS = [];
+const ROUND_POINTS = {
+  1: {},
+  2: {},
+  3: {},
+  4: {}
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  ROUND NET TOTALS — updated each round
+// ═══════════════════════════════════════════════════════════════
+const ROUND_NET = {
+  1: {
+    'Timothy Lynch':    36,
+    'Brent Osgood':     37,
+    'Israel Nieves':    37,
+    'Michael Ramos':    38,
+    'Lydia Johnson':    62,
+    'Chase Campanella': 26
+  },
+  2: {},
+  3: {},
+  4: {}
+};
 
 const ROUND_LABELS = ['R1','R2','R3','R4'];
-
-// ═══════════════════════════════════════════════════════════════
-//  STABLEFORD (used when rounds are added)
-// ═══════════════════════════════════════════════════════════════
-function stableford(net, par) {
-  return net.reduce((pts, n, i) => {
-    const d = n - par[i];
-    return pts + (d <= -2 ? 4 : d === -1 ? 3 : d === 0 ? 2 : d === 1 ? 1 : 0);
-  }, 0);
-}
 
 // ═══════════════════════════════════════════════════════════════
 //  HELPERS
@@ -215,23 +233,13 @@ function posLabel(rows, i, key) {
 //  BUILD: LEADERBOARD
 // ═══════════════════════════════════════════════════════════════
 function buildPoints() {
-  const roundPts = {};
-  const roundNet = {};
-  ALL_PLAYERS.forEach(p => { roundPts[p] = {}; roundNet[p] = {}; });
-
-  ROUNDS.forEach(rnd => {
-    ALL_PLAYERS.forEach(p => {
-      if (!rnd.net || !rnd.net[p]) return;
-      roundPts[p][rnd.num] = rnd.pts ? rnd.pts[p] : stableford(rnd.net[p], rnd.par);
-      roundNet[p][rnd.num] = rnd.net[p].reduce((a,b)=>a+b,0);
-    });
-  });
-
   const rows = ALL_PLAYERS.map(p => {
     const start = STARTING_POINTS[p] || 0;
-    const addlPts = Object.values(roundPts[p]).reduce((a,b)=>a+b,0);
-    const addlNet = Object.values(roundNet[p]).reduce((a,b)=>a+b,0);
-    return { name:p, start, byRound: roundPts[p], total: start+addlPts, totalNet: addlNet };
+    const byRound = {};
+    [1,2,3,4].forEach(n => { if (ROUND_POINTS[n][p] !== undefined) byRound[n] = ROUND_POINTS[n][p]; });
+    const addlPts = Object.values(byRound).reduce((a,b)=>a+b,0);
+    const totalNet = [1,2,3,4].reduce((s,n) => s + (ROUND_NET[n][p] || 0), 0);
+    return { name:p, start, byRound, total: start+addlPts, totalNet };
   }).sort((a,b) => b.total!==a.total ? b.total-a.total : a.totalNet-b.totalNet);
 
   let h = `<thead><tr>
@@ -263,20 +271,12 @@ function buildPoints() {
 //  BUILD: NET STROKES
 // ═══════════════════════════════════════════════════════════════
 function buildStrokes() {
-  const roundNet = {};
-  ALL_PLAYERS.forEach(p => roundNet[p] = {});
-
-  ROUNDS.forEach(rnd => {
-    ALL_PLAYERS.forEach(p => {
-      if (!rnd.net || !rnd.net[p]) return;
-      roundNet[p][rnd.num] = rnd.net[p].reduce((a,b)=>a+b,0);
-    });
-  });
-
   const rows = ALL_PLAYERS.map(p => {
-    const total = Object.values(roundNet[p]).reduce((a,b)=>a+b,0);
-    const hasAny = Object.keys(roundNet[p]).length > 0;
-    return { name:p, byRound: roundNet[p], total, hasAny };
+    const byRound = {};
+    [1,2,3,4].forEach(n => { if (ROUND_NET[n][p] !== undefined) byRound[n] = ROUND_NET[n][p]; });
+    const total = Object.values(byRound).reduce((a,b)=>a+b,0);
+    const hasAny = Object.keys(byRound).length > 0;
+    return { name:p, byRound, total, hasAny };
   }).sort((a,b) => {
     if (!a.hasAny && b.hasAny) return 1;
     if (a.hasAny && !b.hasAny) return -1;
