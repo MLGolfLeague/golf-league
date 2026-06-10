@@ -83,7 +83,7 @@
 
 <nav>
   <button class="tab-btn active" onclick="show('points',this)">Leaderboard</button>
-  <button class="tab-btn"        onclick="show('strokes',this)">Net Strokes</button>
+  <button class="tab-btn"        onclick="show('strokes',this)">Gross Strokes</button>
   <button class="tab-btn"        onclick="show('handicap',this)">Handicap</button>
 </nav>
 
@@ -105,10 +105,10 @@
 
   <div id="tab-strokes" class="tab-pane">
     <div class="sec-head">
-      <div class="sec-title">Net Strokes</div>
+      <div class="sec-title">Gross Strokes</div>
       <div class="badge">Season 2</div>
     </div>
-    <div class="hcp-note">Updated each round with actual net scores from the simulator</div>
+    <div class="hcp-note">Gross = Net + (Handicap &divide; 2) &bull; Shows raw ball striking ability</div>
     <div class="table-wrap"><table class="lb-table" id="str-table"></table></div>
   </div>
 
@@ -290,9 +290,21 @@ function buildPoints() {
 //  BUILD: NET STROKES
 // ═══════════════════════════════════════════════════════════════
 function buildStrokes() {
+  const hcpByRound = [
+    { num:1, hcp: HANDICAP_TABLE.R1 },
+    { num:2, hcp: HANDICAP_TABLE.R2 },
+    { num:3, hcp: HANDICAP_TABLE.R3 },
+    { num:4, hcp: HANDICAP_TABLE.R4 }
+  ];
+
   const rows = ALL_PLAYERS.map(p => {
     const byRound = {};
-    [1,2,3,4].forEach(n => { if (ROUND_NET[n][p] !== undefined) byRound[n] = ROUND_NET[n][p]; });
+    hcpByRound.forEach(({num, hcp}) => {
+      const net = ROUND_NET[num][p];
+      if (net === undefined) return;
+      const strokes = Math.round((hcp[p] || 0) / 2);
+      byRound[num] = net + strokes;
+    });
     const total = Object.values(byRound).reduce((a,b)=>a+b,0);
     const hasAny = Object.keys(byRound).length > 0;
     return { name:p, byRound, total, hasAny };
