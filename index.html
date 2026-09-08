@@ -94,7 +94,7 @@ body{font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}.table-titl
 const leagueData={
   players:[
     {id:'brent',name:'Brent Osgood',scores:[38,38,41,39,34,39,37,37,35,34,33,33],currentHandicap:-1},
-    {id:'jackson',name:'Jackson Stupp',scores:[39,44,46,43,35,41,39,42,40,59,37],currentHandicap:5},
+    {id:'jackson',name:'Jackson Stupp',scores:[39,44,46,43,35,41,39,42,40,59,37,41],currentHandicap:5},
     {id:'mike',name:'Michael Ramos',scores:[41,43,48,48,38,35,40,44,40,44,38,35],currentHandicap:6},
     {id:'pat',name:'Pat Muia',scores:[42,41,50,46,43,38,44,43,41,47,39,40],currentHandicap:9},
     {id:'scott',name:'Scott Goodwin',scores:[48,52,43,42,43,47,41,50,38,51,40,44],currentHandicap:10},
@@ -136,7 +136,8 @@ const leagueData={
     ]
   },
   liveEvents:{
-    4:{final:false,scores:{brent:33,mike:34,sammy:36,tim:39,scott:41,pat:37,chase:44,jr:35,kyle:37}}
+    4:{final:true,scores:{brent:33,mike:34,sammy:36,tim:39,scott:41,pat:37,chase:44,jr:35,kyle:37,jackson:40}},
+    5:{final:false,scores:{sammy:36,tim:42}}
   },
   points:{normal:[100,90,80,70,60,50,40,30,20,10],majorMultiplier:1.5},
   scoringPar:36
@@ -247,7 +248,7 @@ document.querySelector('#event-selector').addEventListener('change',e=>renderRes
 document.querySelector('#schedule-grid').addEventListener('click',e=>{const card=e.target.closest('[data-week]');if(!card)return;const week=Number(card.dataset.week);document.querySelector('#event-selector').value=week;renderResults(week);showView('results')});
 document.querySelectorAll('.standings-tab').forEach(button=>button.addEventListener('click',()=>showPointsPanel(button.dataset.pointsPanel)));
 document.querySelector('#points-table').addEventListener('click',e=>{const button=e.target.closest('.standings-player-toggle');if(!button)return;const detail=document.querySelector(`[data-breakdown="${button.dataset.playerId}"]`);const opening=detail.hidden;detail.hidden=!opening;button.setAttribute('aria-expanded',String(opening));button.querySelector('.standings-expand').textContent=opening?'−':'+'});
-renderSchedule();renderHandicaps();document.querySelector('#event-selector').value=4;renderResults(4);renderPoints();renderPastChampions();
+renderSchedule();renderHandicaps();document.querySelector('#event-selector').value=5;renderResults(5);renderPoints();renderPastChampions();
 </script>
 </body>
 </html>
