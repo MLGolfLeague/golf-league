@@ -93,11 +93,11 @@ body{font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}.table-titl
 // ==========================================
 const leagueData={
   players:[
-    {id:'brent',name:'Brent Osgood',scores:[38,38,41,39,34,39,37,37,35,34,33,33],currentHandicap:-1},
-    {id:'jackson',name:'Jackson Stupp',scores:[39,44,46,43,35,41,39,42,40,59,37,41],currentHandicap:5},
-    {id:'mike',name:'Michael Ramos',scores:[41,43,48,48,38,35,40,44,40,44,38,35],currentHandicap:6},
-    {id:'pat',name:'Pat Muia',scores:[42,41,50,46,43,38,44,43,41,47,39,40],currentHandicap:9},
-    {id:'scott',name:'Scott Goodwin',scores:[48,52,43,42,43,47,41,50,38,51,40,44],currentHandicap:10},
+    {id:'brent',name:'Brent Osgood',scores:[38,38,41,39,34,39,37,37,35,34,33,33,40],currentHandicap:-1},
+    {id:'jackson',name:'Jackson Stupp',scores:[39,44,46,43,35,41,39,42,40,59,37,41,43],currentHandicap:5},
+    {id:'mike',name:'Michael Ramos',scores:[41,43,48,48,38,35,40,44,40,44,38,35,39],currentHandicap:6},
+    {id:'pat',name:'Pat Muia',scores:[42,41,50,46,43,38,44,43,41,47,39,40,37],currentHandicap:9},
+    {id:'scott',name:'Scott Goodwin',scores:[48,52,43,42,43,47,41,50,38,51,40,44,37],currentHandicap:10},
     {id:'jr',name:'Israel Nieves',scores:[46,41,46,44,40,42,43,42,50,41,39],currentHandicap:11},
     {id:'tim',name:'Timothy Lynch',scores:[43,46,45,44,42,45,40,44,40,38,37,42,45],currentHandicap:11},
     {id:'chase',name:'Chase Campanella',scores:[44,50,51,48,52,44,46,46,49,85,46,52],currentHandicap:18},
@@ -137,7 +137,7 @@ const leagueData={
   },
   liveEvents:{
     4:{final:true,scores:{brent:33,mike:34,sammy:36,tim:39,scott:41,pat:37,chase:44,jr:35,kyle:37,jackson:40}},
-    5:{final:false,scores:{sammy:36,tim:42,brent:40}}
+    5:{final:true,scores:{scott:33,pat:34,sammy:36,mike:39,brent:40,tim:42,jackson:42},grossScores:{scott:37,pat:37,sammy:49,mike:39,brent:40,tim:45,jackson:43},notPosted:['Chase Campanella','Israel Nieves','Kyle Beglan','Shawn Gillispie']}
   },
   points:{normal:[100,90,80,70,60,50,40,30,20,10],majorMultiplier:1.5},
   scoringPar:36
@@ -184,7 +184,7 @@ function eventStatus(week){if(isComplete(week))return'FINAL';return liveEventFor
 function resultSource(week){
   const official=officialResultsFor(week);if(official)return official;
   const scores=liveEventFor(week)?.scores||{};
-  return Object.entries(scores).filter(([,net])=>Number.isFinite(net)).map(([playerId,net])=>({playerId,net}));
+  return Object.entries(scores).filter(([,net])=>Number.isFinite(net)).map(([playerId,net])=>({playerId,net,gross:liveEventFor(week)?.grossScores?.[playerId]}));
 }
 function rankedResults(week){
   const event=eventMap[week],source=resultSource(week);if(!source.length)return[];
@@ -226,7 +226,7 @@ function renderResults(week){
     document.querySelector('#event-results').innerHTML=html;return;
   }
   const champ=rows[0];html+=`<div class="champion-feature"><div class="champion-label">${e.major?'MAJOR CHAMPION':'CHAMPION'}</div><div class="champion-name">${champ.name}</div><div class="champion-score">${signed(champ.toPar)}</div></div>`;
-  html+=`<div class="table-shell"><div class="table-title">FINAL LEADERBOARD</div><table class="leaderboard results-table"><thead><tr><th>Pos</th><th class="player">Player</th><th>Net</th><th>To Par</th><th>Points</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="position">${r.positionLabel}</td><td class="player">${r.name}</td><td class="net">${r.net}</td><td>${signed(r.toPar)}</td><td><strong>${r.points}</strong></td></tr>`).join('')}</tbody></table></div>`;document.querySelector('#event-results').innerHTML=html;
+  html+=`<div class="table-shell"><div class="table-title">FINAL LEADERBOARD</div><table class="leaderboard results-table"><thead><tr><th>Pos</th><th class="player">Player</th><th>Net</th>${rows.some(r=>Number.isFinite(r.gross))?'<th>Gross</th>':''}<th>To Par</th><th>Points</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="position">${r.positionLabel}</td><td class="player">${r.name}</td><td class="net">${r.net}</td>${rows.some(row=>Number.isFinite(row.gross))?`<td>${r.gross??'?'}</td>`:''}<td>${signed(r.toPar)}</td><td><strong>${r.points}</strong></td></tr>`).join('')}</tbody></table>${liveEventFor(week)?.notPosted?.length?`<div class="not-posted"><div class="not-posted-title">NO COMPLETED ROUND</div>${liveEventFor(week).notPosted.map(name=>`<div class="not-posted-player"><span>${name}</span><b>?</b></div>`).join('')}</div>`:''}</div>`;document.querySelector('#event-results').innerHTML=html;
 }
 function renderPoints(){
   const rows=seasonStandings();document.querySelector('#leader-feature').innerHTML='';
