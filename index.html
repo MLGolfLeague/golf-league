@@ -137,8 +137,9 @@ const leagueData={
   },
   liveEvents:{
     4:{final:true,scores:{brent:33,mike:34,sammy:36,tim:39,scott:41,pat:37,chase:44,jr:35,kyle:37,jackson:40}},
-    5:{final:true,scores:{scott:33,pat:34,jr:34,kyle:34,sammy:36,mike:39,brent:40,tim:42,jackson:42},grossScores:{scott:37,pat:37,jr:38,kyle:46,sammy:49,mike:39,brent:40,tim:45,jackson:43},notPosted:['Chase Campanella','Shawn Gillispie']},
-    6:{final:false,scores:{kyle:30,tim:35,brent:37,pat:38,jr:39},grossScores:{brent:37,tim:38,pat:40,kyle:40,jr:42}}
+    5:{final:true,scores:{chase:37,scott:33,pat:34,jr:34,kyle:34,sammy:36,mike:39,brent:40,tim:42,jackson:42},grossScores:{chase:46,scott:37,pat:37,jr:38,kyle:46,sammy:49,mike:39,brent:40,tim:45,jackson:43}},
+    6:{final:true,scores:{kyle:30,tim:35,brent:37,scott:37,pat:38,jr:39},grossScores:{brent:37,tim:38,pat:40,kyle:40,jr:42},inProgress:{mike:{strokes:25,toPar:9,thru:13}},notPosted:['Michael Ramos','Jackson Stupp','Chase Campanella','Samuel Nieves']},
+    7:{final:false,scores:{}}
   },
   points:{normal:[100,90,80,70,60,50,40,30,20,10],majorMultiplier:1.5},
   scoringPar:36
@@ -196,7 +197,7 @@ function rankedResults(week){
 }
 function championFor(week){return isComplete(week)?rankedResults(week).find(r=>r.position===1)||null:null}
 function leaderFor(week){return rankedResults(week)[0]||null}
-function unpostedPlayers(week){const scores=liveEventFor(week)?.scores||{};return leagueData.players.filter(p=>!Number.isFinite(scores[p.id]))}
+function unpostedPlayers(week){const scores=liveEventFor(week)?.scores||{};return leagueData.players.filter(p=>!Number.isFinite(scores[p.id])&&!liveEventFor(week)?.inProgress?.[p.id])}
 function seasonStandings(){
   const stats=Object.fromEntries(leagueData.players.map(p=>[p.id,{...p,points:0,events:0,wins:0,top3:0,majorWins:0}]));
   leagueData.schedule.filter(e=>isComplete(e.week)).forEach(e=>rankedResults(e.week).forEach(r=>{const s=stats[r.playerId];if(!s)return;s.points+=r.points;s.events++;if(r.position===1){s.wins++;if(e.major)s.majorWins++}if(r.position<=3)s.top3++}));
@@ -223,7 +224,9 @@ function renderResults(week){
   if(!rows.length){html+=status==='LIVE'?'<div class="coming-soon"><strong>Live Scoring Is Open</strong><span>Scores will appear here as players post their rounds.</span></div>':'<div class="coming-soon"><strong>Results Coming Soon</strong><span>Official results will appear here after tournament play.</span></div>';document.querySelector('#event-results').innerHTML=html;return}
   if(status==='LIVE'){
     const unposted=unpostedPlayers(week);
-    html+=`<div class="table-shell live-results"><div class="table-title">CURRENT LEADERBOARD</div><table class="leaderboard results-table live-table"><thead><tr><th>Pos</th><th class="player">Player</th><th>Net</th><th>To Par</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="position">${r.positionLabel}</td><td class="player">${r.name}</td><td class="net">${r.net}</td><td class="to-par">${signed(r.toPar)}</td></tr>`).join('')}</tbody></table>${unposted.length?`<div class="not-posted"><div class="not-posted-title">NOT POSTED</div>${unposted.map(p=>`<div class="not-posted-player"><span>${p.name}</span><b>—</b></div>`).join('')}</div>`:''}</div>`;
+    const liveRows=[...rows.map(r=>({...r,strokes:r.net,thru:'F'})),...Object.entries(liveEventFor(week)?.inProgress||{}).map(([playerId,score])=>({playerId,name:playerMap[playerId]?.name||playerId,...score}))].sort((a,b)=>a.toPar-b.toPar||a.name.localeCompare(b.name));
+    liveRows.forEach((r,i)=>{r.position=i&&r.toPar===liveRows[i-1].toPar?liveRows[i-1].position:i+1;r.positionLabel=(liveRows.filter(other=>other.toPar===r.toPar).length>1?'T':'')+r.position});
+    html+=`<div class="table-shell live-results"><div class="table-title">CURRENT LEADERBOARD</div><table class="leaderboard results-table live-table"><thead><tr><th>Pos</th><th class="player">Player</th><th>Net</th><th>To Par</th><th>Thru</th></tr></thead><tbody>${liveRows.map(r=>`<tr><td class="position">${r.positionLabel}</td><td class="player">${r.name}</td><td class="net">${r.strokes}</td><td class="to-par">${signed(r.toPar)}</td><td>${r.thru}</td></tr>`).join('')}</tbody></table>${unposted.length?`<div class="not-posted"><div class="not-posted-title">NOT POSTED</div>${unposted.map(p=>`<div class="not-posted-player"><span>${p.name}</span><b>—</b></div>`).join('')}</div>`:''}</div>`;
     document.querySelector('#event-results').innerHTML=html;return;
   }
   const champ=rows[0];html+=`<div class="champion-feature"><div class="champion-label">${e.major?'MAJOR CHAMPION':'CHAMPION'}</div><div class="champion-name">${champ.name}</div><div class="champion-score">${signed(champ.toPar)}</div></div>`;
@@ -249,7 +252,7 @@ document.querySelector('#event-selector').addEventListener('change',e=>renderRes
 document.querySelector('#schedule-grid').addEventListener('click',e=>{const card=e.target.closest('[data-week]');if(!card)return;const week=Number(card.dataset.week);document.querySelector('#event-selector').value=week;renderResults(week);showView('results')});
 document.querySelectorAll('.standings-tab').forEach(button=>button.addEventListener('click',()=>showPointsPanel(button.dataset.pointsPanel)));
 document.querySelector('#points-table').addEventListener('click',e=>{const button=e.target.closest('.standings-player-toggle');if(!button)return;const detail=document.querySelector(`[data-breakdown="${button.dataset.playerId}"]`);const opening=detail.hidden;detail.hidden=!opening;button.setAttribute('aria-expanded',String(opening));button.querySelector('.standings-expand').textContent=opening?'−':'+'});
-renderSchedule();renderHandicaps();document.querySelector('#event-selector').value=6;renderResults(6);renderPoints();renderPastChampions();
+renderSchedule();renderHandicaps();document.querySelector('#event-selector').value=7;renderResults(7);renderPoints();renderPastChampions();
 </script>
 </body>
 </html>
