@@ -93,16 +93,16 @@ body{font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}.table-titl
 // ==========================================
 const leagueData={
   players:[
-    {id:'brent',name:'Brent Osgood',scores:[38,38,41,39,34,39,37,37,35,34,33,33,40,37],currentHandicap:-1},
+    {id:'brent',name:'Brent Osgood',scores:[38,38,41,39,34,39,37,37,35,34,33,33,40,37,42],currentHandicap:-1},
     {id:'jackson',name:'Jackson Stupp',scores:[39,44,46,43,35,41,39,42,40,59,37,41,43],currentHandicap:5},
-    {id:'mike',name:'Michael Ramos',scores:[41,43,48,48,38,35,40,44,40,44,38,35,39],currentHandicap:6},
+    {id:'mike',name:'Michael Ramos',scores:[41,43,48,48,38,35,40,44,40,44,38,35,39,49],currentHandicap:6},
     {id:'pat',name:'Pat Muia',scores:[42,41,50,46,43,38,44,43,41,47,39,40,37,40],currentHandicap:9},
-    {id:'scott',name:'Scott Goodwin',scores:[48,52,43,42,43,47,41,50,38,51,40,44,37],currentHandicap:10},
-    {id:'jr',name:'Israel Nieves',scores:[46,41,46,44,40,42,43,42,50,41,39,38,42],currentHandicap:11},
-    {id:'tim',name:'Timothy Lynch',scores:[43,46,45,44,42,45,40,44,40,38,37,42,45,38],currentHandicap:11},
-    {id:'chase',name:'Chase Campanella',scores:[44,50,51,48,52,44,46,46,49,85,46,52],currentHandicap:18},
+    {id:'scott',name:'Scott Goodwin',scores:[48,52,43,42,43,47,41,50,38,51,40,44,37,46],currentHandicap:10},
+    {id:'jr',name:'Israel Nieves',scores:[46,41,46,44,40,42,43,42,50,41,39,38,42,50],currentHandicap:11},
+    {id:'tim',name:'Timothy Lynch',scores:[43,46,45,44,42,45,40,44,40,38,37,42,45,38,44],currentHandicap:11},
+    {id:'chase',name:'Chase Campanella',scores:[44,50,51,48,52,44,46,46,49,85,46,52,49,49],currentHandicap:18},
     {id:'sammy',name:'Samuel Nieves',scores:[52,63,55,53,46,66,52,73,57,50,49],currentHandicap:28},
-    {id:'kyle',name:'Kyle Beglan',scores:[58,56,49,49,46,40],currentHandicap:44}
+    {id:'kyle',name:'Kyle Beglan',scores:[58,56,49,49,46,40,58],currentHandicap:44}
   ],
   schedule:[
     {week:1,name:'WM Phoenix Open',course:'TPC Scottsdale',major:false,accent:'#168b73'},
@@ -138,8 +138,8 @@ const leagueData={
   liveEvents:{
     4:{final:true,scores:{brent:33,mike:34,sammy:36,tim:39,scott:41,pat:37,chase:44,jr:35,kyle:37,jackson:40}},
     5:{final:true,scores:{chase:37,scott:33,pat:34,jr:34,kyle:34,sammy:36,mike:39,brent:40,tim:42,jackson:42},grossScores:{chase:46,scott:37,pat:37,jr:38,kyle:46,sammy:49,mike:39,brent:40,tim:45,jackson:43}},
-    6:{final:true,scores:{kyle:30,tim:35,brent:37,scott:37,pat:38,jr:39},grossScores:{brent:37,tim:38,pat:40,kyle:40,jr:42},inProgress:{mike:{strokes:25,toPar:9,thru:13}},notPosted:['Michael Ramos','Jackson Stupp','Chase Campanella','Samuel Nieves']},
-    7:{final:false,scores:{}}
+    6:{final:true,scores:{kyle:30,tim:35,brent:37,scott:37,pat:38,jr:39,chase:40,mike:49},grossScores:{brent:37,tim:38,pat:40,kyle:40,jr:42,chase:49,mike:49},notPosted:['Jackson Stupp','Samuel Nieves']},
+    7:{final:false,scores:{chase:40,tim:41,brent:42,scott:43,jr:46,kyle:51},grossScores:{brent:42,tim:44,scott:46,chase:49,jr:50,kyle:58}}
   },
   points:{normal:[100,90,80,70,60,50,40,30,20,10],majorMultiplier:1.5},
   scoringPar:36
@@ -193,21 +193,21 @@ function rankedResults(week){
   const rows=source.map(r=>({...r,name:playerMap[r.playerId]?.name||r.playerId})).sort((a,b)=>a.net-b.net||a.name.localeCompare(b.name));
   rows.forEach((r,i)=>{r.position=i===0||r.net!==rows[i-1].net?i+1:rows[i-1].position});
   const totals=rows.reduce((m,r)=>(m[r.position]=(m[r.position]||0)+1,m),{});
-  rows.forEach(r=>{r.positionLabel=(totals[r.position]>1?'T':'')+r.position;r.points=isComplete(week)?pointValue(r.position,event.major):0;r.toPar=r.net-leagueData.scoringPar});return rows;
+  rows.forEach(r=>{r.positionLabel=(totals[r.position]>1?'T':'')+r.position;r.points=pointValue(r.position,event.major);r.toPar=r.net-leagueData.scoringPar});return rows;
 }
 function championFor(week){return isComplete(week)?rankedResults(week).find(r=>r.position===1)||null:null}
 function leaderFor(week){return rankedResults(week)[0]||null}
 function unpostedPlayers(week){const scores=liveEventFor(week)?.scores||{};return leagueData.players.filter(p=>!Number.isFinite(scores[p.id])&&!liveEventFor(week)?.inProgress?.[p.id])}
 function seasonStandings(){
   const stats=Object.fromEntries(leagueData.players.map(p=>[p.id,{...p,points:0,events:0,wins:0,top3:0,majorWins:0}]));
-  leagueData.schedule.filter(e=>isComplete(e.week)).forEach(e=>rankedResults(e.week).forEach(r=>{const s=stats[r.playerId];if(!s)return;s.points+=r.points;s.events++;if(r.position===1){s.wins++;if(e.major)s.majorWins++}if(r.position<=3)s.top3++}));
+  leagueData.schedule.forEach(e=>rankedResults(e.week).forEach(r=>{const s=stats[r.playerId];if(!s)return;s.points+=r.points;if(!isComplete(e.week))return;s.events++;if(r.position===1){s.wins++;if(e.major)s.majorWins++}if(r.position<=3)s.top3++}));
   const rows=Object.values(stats).sort((a,b)=>b.points-a.points||b.wins-a.wins||a.name.localeCompare(b.name));
   rows.forEach((r,i)=>{r.rank=i===0||r.points!==rows[i-1].points?i+1:rows[i-1].rank});const ties=rows.reduce((m,r)=>(m[r.rank]=(m[r.rank]||0)+1,m),{});rows.forEach(r=>r.rankLabel=(ties[r.rank]>1?'T':'')+r.rank);return rows;
 }
 function pointBreakdownFor(playerId){
-  return leagueData.schedule.filter(e=>isComplete(e.week)).map(e=>{
+  return leagueData.schedule.map(e=>{
     const result=rankedResults(e.week).find(r=>r.playerId===playerId);
-    return result?{week:e.week,event:e.name,position:result.positionLabel,points:result.points,major:e.major}:null;
+    return result?{week:e.week,event:e.name,position:result.positionLabel,points:result.points,major:e.major,provisional:!isComplete(e.week)}:null;
   }).filter(Boolean);
 }
 function signed(score){if(score===0)return'E';return score>0?`+${score}`:`${score}`}
@@ -226,15 +226,15 @@ function renderResults(week){
     const unposted=unpostedPlayers(week);
     const liveRows=[...rows.map(r=>({...r,strokes:r.net,thru:'F'})),...Object.entries(liveEventFor(week)?.inProgress||{}).map(([playerId,score])=>({playerId,name:playerMap[playerId]?.name||playerId,...score}))].sort((a,b)=>a.toPar-b.toPar||a.name.localeCompare(b.name));
     liveRows.forEach((r,i)=>{r.position=i&&r.toPar===liveRows[i-1].toPar?liveRows[i-1].position:i+1;r.positionLabel=(liveRows.filter(other=>other.toPar===r.toPar).length>1?'T':'')+r.position});
-    html+=`<div class="table-shell live-results"><div class="table-title">CURRENT LEADERBOARD</div><table class="leaderboard results-table live-table"><thead><tr><th>Pos</th><th class="player">Player</th><th>Net</th><th>To Par</th><th>Thru</th></tr></thead><tbody>${liveRows.map(r=>`<tr><td class="position">${r.positionLabel}</td><td class="player">${r.name}</td><td class="net">${r.strokes}</td><td class="to-par">${signed(r.toPar)}</td><td>${r.thru}</td></tr>`).join('')}</tbody></table>${unposted.length?`<div class="not-posted"><div class="not-posted-title">NOT POSTED</div>${unposted.map(p=>`<div class="not-posted-player"><span>${p.name}</span><b>—</b></div>`).join('')}</div>`:''}</div>`;
+    html+=`<div class="table-shell live-results"><div class="table-title">CURRENT LEADERBOARD</div><table class="leaderboard results-table live-table"><thead><tr><th>Pos</th><th class="player">Player</th><th>Net</th><th>To Par</th><th>Thru</th><th>Provisional Points</th></tr></thead><tbody>${liveRows.map(r=>`<tr><td class="position">${r.positionLabel}</td><td class="player">${r.name}</td><td class="net">${r.strokes}</td><td class="to-par">${signed(r.toPar)}</td><td>${r.thru}</td><td><strong>${r.points??'—'}</strong></td></tr>`).join('')}</tbody></table>${unposted.length?`<div class="not-posted"><div class="not-posted-title">NOT POSTED</div>${unposted.map(p=>`<div class="not-posted-player"><span>${p.name}</span><b>—</b></div>`).join('')}</div>`:''}</div>`;
     document.querySelector('#event-results').innerHTML=html;return;
   }
   const champ=rows[0];html+=`<div class="champion-feature"><div class="champion-label">${e.major?'MAJOR CHAMPION':'CHAMPION'}</div><div class="champion-name">${champ.name}</div><div class="champion-score">${signed(champ.toPar)}</div></div>`;
   html+=`<div class="table-shell"><div class="table-title">FINAL LEADERBOARD</div><table class="leaderboard results-table"><thead><tr><th>Pos</th><th class="player">Player</th><th>Net</th>${rows.some(r=>Number.isFinite(r.gross))?'<th>Gross</th>':''}<th>To Par</th><th>Points</th></tr></thead><tbody>${rows.map(r=>`<tr><td class="position">${r.positionLabel}</td><td class="player">${r.name}</td><td class="net">${r.net}</td>${rows.some(row=>Number.isFinite(row.gross))?`<td>${r.gross??'?'}</td>`:''}<td>${signed(r.toPar)}</td><td><strong>${r.points}</strong></td></tr>`).join('')}</tbody></table>${liveEventFor(week)?.notPosted?.length?`<div class="not-posted"><div class="not-posted-title">NO COMPLETED ROUND</div>${liveEventFor(week).notPosted.map(name=>`<div class="not-posted-player"><span>${name}</span><b>?</b></div>`).join('')}</div>`:''}</div>`;document.querySelector('#event-results').innerHTML=html;
 }
 function renderPoints(){
-  const rows=seasonStandings();document.querySelector('#leader-feature').innerHTML='';
-  document.querySelector('#points-table').innerHTML=`<div class="table-shell standings-shell"><table class="leaderboard standings-table"><thead><tr><th>Rank</th><th class="player">Player</th><th>Points</th><th class="secondary-stat">Wins</th><th class="secondary-stat">Top 3</th></tr></thead><tbody>${rows.map((r,i)=>{const rounds=pointBreakdownFor(r.id);return`<tr class="standings-player-row"><td class="position">${r.rankLabel}</td><td class="player"><button class="standings-player-toggle" type="button" data-player-id="${r.id}" aria-expanded="false"><span class="player-dot">${r.name[0]}</span><span>${r.name}${i===0?'<small class="leader-tag">ML CUP LEADER</small>':''}</span><b class="standings-expand">+</b></button></td><td class="points-value">${r.points}</td><td class="secondary-stat">${r.wins}</td><td class="secondary-stat">${r.top3}</td></tr><tr class="points-breakdown-row" data-breakdown="${r.id}" hidden><td colspan="5"><div class="points-breakdown">${rounds.map(round=>`<div class="round-points"><span><b>WEEK ${round.week}</b>${round.event}${round.major?'<em>MAJOR</em>':''}</span><span>Finish <strong>${round.position}</strong></span><span><strong>${round.points}</strong> pts</span></div>`).join('')||'<div class="round-points empty">No completed rounds</div>'}</div></td></tr>`}).join('')}</tbody></table></div>`;
+  const rows=seasonStandings();document.querySelector('#leader-feature').innerHTML=leagueData.schedule.some(e=>!isComplete(e.week)&&rankedResults(e.week).length)?'<p>Standings include provisional points from posted rounds. Points adjust as more scores are posted; wins and Top 3 finishes count after the event is final.</p>':'';
+  document.querySelector('#points-table').innerHTML=`<div class="table-shell standings-shell"><table class="leaderboard standings-table"><thead><tr><th>Rank</th><th class="player">Player</th><th>Points</th><th class="secondary-stat">Wins</th><th class="secondary-stat">Top 3</th></tr></thead><tbody>${rows.map((r,i)=>{const rounds=pointBreakdownFor(r.id);return`<tr class="standings-player-row"><td class="position">${r.rankLabel}</td><td class="player"><button class="standings-player-toggle" type="button" data-player-id="${r.id}" aria-expanded="false"><span class="player-dot">${r.name[0]}</span><span>${r.name}${i===0?'<small class="leader-tag">ML CUP LEADER</small>':''}</span><b class="standings-expand">+</b></button></td><td class="points-value">${r.points}</td><td class="secondary-stat">${r.wins}</td><td class="secondary-stat">${r.top3}</td></tr><tr class="points-breakdown-row" data-breakdown="${r.id}" hidden><td colspan="5"><div class="points-breakdown">${rounds.map(round=>`<div class="round-points"><span><b>WEEK ${round.week}</b>${round.event}${round.major?'<em>MAJOR</em>':''}</span><span>${round.provisional?'Current position':'Finish'} <strong>${round.position}</strong></span><span><strong>${round.points}</strong> pts${round.provisional?' (provisional)':''}</span></div>`).join('')||'<div class="round-points empty">No posted rounds</div>'}</div></td></tr>`}).join('')}</tbody></table></div>`;
 }
 function renderPastChampions(){
   const champions=leagueData.schedule.filter(e=>isComplete(e.week)).map(e=>({event:e,champion:championFor(e.week)})).filter(item=>item.champion).reverse();
